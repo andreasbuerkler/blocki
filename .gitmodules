@@ -1,0 +1,3 @@
+[submodule "submodules/Svg.Skia"]
+	path = submodules/Svg.Skia
+	url = https://github.com/wieslawsoltes/Svg.Skia
