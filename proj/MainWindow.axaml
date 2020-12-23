@@ -4,9 +4,9 @@
         Title="Blocki - probably another bad block diagram editor" Height="768" Width="1024">
 
     <DockPanel>
-        <UserControl DockPanel.Dock="Left" Width="200" Background="Red" x:Name="controlPanel" />
+        <UserControl DockPanel.Dock="Left" Width="140" Background="Red" x:Name="controlPanel" />
         <UserControl DockPanel.Dock="Bottom" Height="20" Background="Blue" x:Name="statusPanel" />
         <UserControl DockPanel.Dock="Right" Background="Green" x:Name="drawPanel" />
     </DockPanel>
-  
+
 </Window>

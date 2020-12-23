@@ -16,7 +16,7 @@ namespace Blocki.DrawElements
 
         public bool RemoveBlock(int id)
         {
-            _blocks[id] = new Block();
+            _blocks.RemoveAt(id);
             return true;
         }
 

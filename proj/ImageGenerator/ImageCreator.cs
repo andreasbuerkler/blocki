@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Text;
 using System.Xml.Serialization;
-using Blocki.DrawElements;
 using Blocki.Notifications;
 
 namespace Blocki.ImageGenerator
@@ -11,31 +10,57 @@ namespace Blocki.ImageGenerator
         public ImageCreator()
         {
             NotificationCenter.Instance.AddObserver(OnCursorChangedNotification, Notification.Id.CursorChanged);
-            _drawContainer.SetImageSize(924, 748);
-            Block test = new Block();
-            test.AddRect(0, 0, 100, 100);
-            _firstBlockId = _drawContainer.AddBlock(test);
+            NotificationCenter.Instance.AddObserver(OnButtonPressedNotification, Notification.Id.ButtonPressed);
         }
 
         private void OnCursorChangedNotification(Notification notification)
         {
-            CursorChanged message = (CursorChanged)notification.Message;
-            Block test = _drawContainer.GetBlock(_firstBlockId);
-            test.ModifyRect(0, message.xPos, message.yPos, 100, 100);
+            bool updateImage = false;
 
-            Notification newNotification = new Notification(new ImageChanged(CreateImage(_drawContainer)));
-            NotificationCenter.Instance.PostNotification(Notification.Id.ImageChanged, newNotification);
+            CursorChanged message = (CursorChanged)notification.Message;
+            if ((message.buttonIsPressed) && (_activeButton == ButtonPressed.Id.AddBlock))
+            {
+                _container.AddBlock(message.xPos, message.yPos);
+                updateImage = true;
+            }
+            if ((message.buttonIsPressed) && (_activeButton == ButtonPressed.Id.Delete) && (_activeBlockId >= 0))
+            {
+                _container.DeleteBlock(_activeBlockId);
+                updateImage = true;
+            }
+            if (!message.buttonIsHold)
+            {
+                _activeBlockId = _container.SelectBlock(message.xPos, message.yPos);
+            }
+            else if ((_activeButton == ButtonPressed.Id.Move) && (_activeBlockId >= 0))
+            {
+                _container.MoveBlock(_activeBlockId, message.xPos, message.yPos);
+                updateImage = true;
+            }
+
+            if (updateImage)
+            {
+                Notification newNotification = new Notification(new ImageChanged(CreateImage()));
+                NotificationCenter.Instance.PostNotification(Notification.Id.ImageChanged, newNotification);
+            }
         }
 
-        private string CreateImage(DrawElements.Svg image)
+        private string CreateImage()
         {
             MemoryStream _stream = new MemoryStream();
-            _serializer.Serialize(_stream, image);
+            _serializer.Serialize(_stream, _container.container);
             return Encoding.UTF8.GetString(_stream.ToArray());
         }
 
-        private DrawElements.Svg _drawContainer = new DrawElements.Svg();
+        private void OnButtonPressedNotification(Notification notification)
+        {
+            ButtonPressed message = (ButtonPressed)notification.Message;
+            _activeButton = message.buttonId;
+        }
+
+        private ButtonPressed.Id _activeButton = ButtonPressed.Id.None;
+        private int _activeBlockId;
+        private ImageContainer _container = new ImageContainer();
         private XmlSerializer _serializer = new XmlSerializer(typeof(DrawElements.Svg));
-        private int _firstBlockId;
     }
 }

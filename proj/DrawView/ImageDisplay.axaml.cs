@@ -32,7 +32,7 @@ namespace Blocki.DrawView
             if (cursorPosition.Properties.IsLeftButtonPressed)
             {
                 _pressed = true;
-                Notification notification = new Notification(new CursorChanged(Convert.ToInt32(cursorPosition.Position.X), Convert.ToInt32(cursorPosition.Position.Y)));
+                Notification notification = new Notification(new CursorChanged(Convert.ToInt32(cursorPosition.Position.X), Convert.ToInt32(cursorPosition.Position.Y), true, false, _pressed));
                 NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
             }
         }
@@ -43,17 +43,16 @@ namespace Blocki.DrawView
             if (!cursorPosition.Properties.IsLeftButtonPressed)
             {
                 _pressed = false;
+                Notification notification = new Notification(new CursorChanged(Convert.ToInt32(cursorPosition.Position.X), Convert.ToInt32(cursorPosition.Position.Y), false, true, _pressed));
+                NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
             }
         }
 
         private void OnImageMoved(object sender, PointerEventArgs e)
         {
-            if (_pressed)
-            {
-                PointerPoint cursorPosition = e.GetCurrentPoint(_imageCanvas);
-                Notification notification = new Notification(new CursorChanged(Convert.ToInt32(cursorPosition.Position.X), Convert.ToInt32(cursorPosition.Position.Y)));
-                NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
-            }
+            PointerPoint cursorPosition = e.GetCurrentPoint(_imageCanvas);
+            Notification notification = new Notification(new CursorChanged(Convert.ToInt32(cursorPosition.Position.X), Convert.ToInt32(cursorPosition.Position.Y), false, false, _pressed));
+            NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
         }
 
         private void OnImageChangedNotification(Notification notification)

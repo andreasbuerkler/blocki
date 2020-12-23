@@ -3,5 +3,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              x:Class="Blocki.ControlView.ControlBar">
-    Hello
+
+    <DockPanel LastChildFill="False" Background="#202020">
+        <Button Width="100" Height="30" DockPanel.Dock="Top" Margin="20" BorderThickness="0" Click="OnAddButtonClick" x:Name="addButton">Add Block</Button>
+        <Button Width="100" Height="30" DockPanel.Dock="Top" Margin="-16" BorderThickness="0" Click="OnConnectButtonClick" x:Name="connectButton">Connect</Button>
+        <Button Width="100" Height="30" DockPanel.Dock="Top" Margin="20" BorderThickness="0" Click="OnDeleteButtonClick" x:Name="deleteButton">Delete</Button>
+        <Button Width="100" Height="30" DockPanel.Dock="Top" Margin="-16" BorderThickness="0" Click="OnMoveButtonClick" x:Name="moveButton">Move</Button>
+        <Button Width="100" Height="30" DockPanel.Dock="Top" Margin="20" BorderThickness="0" Click="OnSaveButtonClick" x:Name="saveButton">Save</Button>
+    </DockPanel>
+
 </UserControl>

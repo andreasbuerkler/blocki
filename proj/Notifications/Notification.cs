@@ -5,7 +5,8 @@
         public enum Id
         {
             CursorChanged,
-            ImageChanged
+            ImageChanged,
+            ButtonPressed
         }
 
         public Notification(object message)

@@ -4,9 +4,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <AvaloniaResource Include="Assets\*" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\submodules\Svg.Skia\src\Avalonia.Svg.Skia\Avalonia.Svg.Skia.csproj" />
   </ItemGroup>
 
