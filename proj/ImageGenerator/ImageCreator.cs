@@ -30,7 +30,10 @@ namespace Blocki.ImageGenerator
             }
             if (!message.buttonIsHold)
             {
-                _activeBlockId = _container.SelectBlock(message.xPos, message.yPos);
+                if (_container.SelectBlock(message.xPos, message.yPos, out _activeBlockId))
+                {
+                    updateImage = true;
+                }
             }
             else if ((_activeButton == ButtonPressed.Id.Move) && (_activeBlockId >= 0))
             {

@@ -41,6 +41,74 @@ namespace Blocki.DrawElements
             return true;
         }
 
+        public bool HighlightRect(int width, bool top, bool bottom, bool left, bool right)
+        {
+            if ((_rectTopIsHighlighted ^ top) || (_rectBottomIsHighlighted ^ bottom) || (_rectLeftIsHighlighted ^ left) || (_rectRightIsHighlighted ^ right))
+            {
+                // remove existing highlighting
+                foreach (bool remove in new List<bool> {_rectTopIsHighlighted, _rectBottomIsHighlighted, _rectLeftIsHighlighted, _rectRightIsHighlighted})
+                {
+                    if (remove)
+                    {
+                        _lines.RemoveAt(_lines.Count - 1);
+                    }
+                }
+
+                // add new highlighting
+                if (top)
+                {
+                    int index = _lines.Count;
+                    _lines.Add(new Line());
+                    _lines[index].x1 = _xStart.ToString();
+                    _lines[index].x2 = _xEnd.ToString();
+                    _lines[index].y1 = (_yStart+(width / 2)).ToString();
+                    _lines[index].y2 = (_yStart+(width / 2)).ToString();
+                    _lines[index].strokeWidth = width.ToString();
+                    _lines[index].stroke = _highlightColor;
+                }
+                if (bottom)
+                {
+                    int index = _lines.Count;
+                    _lines.Add(new Line());
+                    _lines[index].x1 = _xStart.ToString();
+                    _lines[index].x2 = _xEnd.ToString();
+                    _lines[index].y1 = (_yEnd-(width / 2)).ToString();
+                    _lines[index].y2 = (_yEnd-(width / 2)).ToString();
+                    _lines[index].strokeWidth = width.ToString();
+                    _lines[index].stroke = _highlightColor;
+                }
+                if (left)
+                {
+                    int index = _lines.Count;
+                    _lines.Add(new Line());
+                    _lines[index].x1 = (_xStart+(width / 2)).ToString();
+                    _lines[index].x2 = (_xStart+(width / 2)).ToString();
+                    _lines[index].y1 = _yStart.ToString();
+                    _lines[index].y2 = _yEnd.ToString();
+                    _lines[index].strokeWidth = width.ToString();
+                    _lines[index].stroke = _highlightColor;
+                }
+                if (right)
+                {
+                    int index = _lines.Count;
+                    _lines.Add(new Line());
+                    _lines[index].x1 = (_xEnd-(width / 2)).ToString();
+                    _lines[index].x2 = (_xEnd-(width / 2)).ToString();
+                    _lines[index].y1 = _yStart.ToString();
+                    _lines[index].y2 = _yEnd.ToString();
+                    _lines[index].strokeWidth = width.ToString();
+                    _lines[index].stroke = _highlightColor;
+                }
+
+                _rectTopIsHighlighted = top;
+                _rectBottomIsHighlighted = bottom;
+                _rectLeftIsHighlighted = left;
+                _rectRightIsHighlighted = right;
+                return true;
+            }
+            return false;
+        }
+
         public void GetLocation(out int xStart, out int xEnd, out int yStart, out int yEnd)
         {
             xStart = _xStart;
@@ -74,5 +142,10 @@ namespace Blocki.DrawElements
         private int _xEnd = -1;
         private int _yStart = -1;
         private int _yEnd = -1;
+        private bool _rectTopIsHighlighted = false;
+        private bool _rectBottomIsHighlighted = false;
+        private bool _rectRightIsHighlighted = false;
+        private bool _rectLeftIsHighlighted = false;
+        private const string _highlightColor = "orange";
     }
 }
