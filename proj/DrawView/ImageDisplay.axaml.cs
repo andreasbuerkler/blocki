@@ -23,6 +23,7 @@ namespace Blocki.DrawView
             _imageCanvas.AddHandler(Canvas.PointerPressedEvent, OnImageClick);
             _imageCanvas.AddHandler(Canvas.PointerReleasedEvent, OnImageReleased);
             _imageCanvas.AddHandler(Canvas.PointerMovedEvent, OnImageMoved);
+            _imageCanvas.AddHandler(Canvas.PointerWheelChangedEvent , OnImageWheelChanged);
             NotificationCenter.Instance.AddObserver(OnImageChangedNotification, Notification.Id.ImageChanged);
         }
 
@@ -32,7 +33,9 @@ namespace Blocki.DrawView
             if (cursorPosition.Properties.IsLeftButtonPressed)
             {
                 _pressed = true;
-                Notification notification = new Notification(new CursorChanged(Convert.ToInt32(cursorPosition.Position.X), Convert.ToInt32(cursorPosition.Position.Y), true, false, _pressed));
+                int xPos = Convert.ToInt32(cursorPosition.Position.X);
+                int yPos = Convert.ToInt32(cursorPosition.Position.Y);
+                Notification notification = new Notification(new CursorChanged(xPos, yPos, true, false, _pressed));
                 NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
             }
         }
@@ -43,7 +46,9 @@ namespace Blocki.DrawView
             if (!cursorPosition.Properties.IsLeftButtonPressed)
             {
                 _pressed = false;
-                Notification notification = new Notification(new CursorChanged(Convert.ToInt32(cursorPosition.Position.X), Convert.ToInt32(cursorPosition.Position.Y), false, true, _pressed));
+                int xPos = Convert.ToInt32(cursorPosition.Position.X);
+                int yPos = Convert.ToInt32(cursorPosition.Position.Y);
+                Notification notification = new Notification(new CursorChanged(xPos, yPos, false, true, _pressed));
                 NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
             }
         }
@@ -51,8 +56,17 @@ namespace Blocki.DrawView
         private void OnImageMoved(object sender, PointerEventArgs e)
         {
             PointerPoint cursorPosition = e.GetCurrentPoint(_imageCanvas);
-            Notification notification = new Notification(new CursorChanged(Convert.ToInt32(cursorPosition.Position.X), Convert.ToInt32(cursorPosition.Position.Y), false, false, _pressed));
+            int xPos = Convert.ToInt32(cursorPosition.Position.X);
+            int yPos = Convert.ToInt32(cursorPosition.Position.Y);
+            Notification notification = new Notification(new CursorChanged(xPos, yPos, false, false, _pressed));
             NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
+        }
+
+        private void OnImageWheelChanged(object sender, PointerWheelEventArgs e)
+        {
+            double zoomFactor = (e.Delta.Y < 0) ? 1.1 : 1.0 / 1.1;
+            Notification notification = new Notification(new ZoomChanged(zoomFactor));
+            NotificationCenter.Instance.PostNotification(Notification.Id.ZoomChanged, notification);
         }
 
         private void OnImageChangedNotification(Notification notification)

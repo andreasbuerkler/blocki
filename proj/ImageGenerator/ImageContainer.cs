@@ -1,12 +1,36 @@
-﻿namespace Blocki.ImageGenerator
+﻿using System;
+
+namespace Blocki.ImageGenerator
 {
     public class ImageContainer
     {
+        public void SetImageSize(int width, int height)
+        {
+            _drawContainer.SetImageSize(width, height);
+        }
+
+        public void SetViewBox(int xStart, int yStart, int width, int height)
+        {
+            _drawContainer.SetViewBox(xStart, yStart, width, height);
+            ChangeGrid(50, xStart, yStart, width, height);
+        }
+
+        private void ChangeGrid(int spacing, int xStart, int yStart, int width, int height)
+        {
+            if (_gridId != -1)
+            {
+                _drawContainer.RemoveBlock(_gridId);
+            }
+            DrawElements.Block newBlock = new DrawElements.Block();
+            newBlock.AddGrid(spacing, xStart, yStart, width, height);
+            _gridId =_drawContainer.AddBlockAtBack(newBlock);
+        }
+
         public void AddBlock(int xPos, int yPos)
         {
             DrawElements.Block newBlock = new DrawElements.Block();
             newBlock.AddRect(xPos, yPos, 100, 100);
-            _drawContainer.AddBlock(newBlock);
+            _drawContainer.AddBlockInFront(newBlock);
         }
 
         public void DeleteBlock(int index)
@@ -124,5 +148,6 @@
         private bool _rectLeftSelected = false;
         private bool _rectRightSelected = false;
         private const int _highlightWidth = 5;
+        private int _gridId = -1;
     }
 }

@@ -6,7 +6,9 @@
         {
             CursorChanged,
             ImageChanged,
-            ButtonPressed
+            ButtonPressed,
+            ZoomChanged,
+            DisplayedSizeChanged
         }
 
         public Notification(object message)

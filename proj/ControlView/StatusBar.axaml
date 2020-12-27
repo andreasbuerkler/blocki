@@ -5,8 +5,9 @@
              x:Class="Blocki.ControlView.StatusBar">
 
     <DockPanel LastChildFill="False" Background="#202020">
-        <TextBlock DockPanel.Dock="Right" Name="xPos" Width="50" />
         <TextBlock DockPanel.Dock="Right" Name="yPos" Width="50" />
+        <TextBlock DockPanel.Dock="Right" Name="xPos" Width="50" />
+        <TextBlock DockPanel.Dock="Right" Name="zoom" Width="50" />
     </DockPanel>
 
 </UserControl>

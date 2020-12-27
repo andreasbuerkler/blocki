@@ -109,12 +109,104 @@ namespace Blocki.DrawElements
             return false;
         }
 
+        public int AddLine(int xStart, int xEnd, int yStart, int yEnd)
+        {
+            int index = _lines.Count;
+            _lines.Add(new Line());
+            _lines[index].x1 = _xStart.ToString();
+            _lines[index].x2 = _xEnd.ToString();
+            _lines[index].y1 = _yStart.ToString();
+            _lines[index].y2 = _yEnd.ToString();
+
+            _xStart = xStart;
+            _xEnd = xEnd;
+            _yStart = yStart;
+            _yEnd = yEnd;
+
+            return index;
+        }
+
+        public bool ModifyLine(int index, int xStart, int xEnd, int yStart, int yEnd)
+        {
+            if (index >= _lines.Count)
+            {
+                return false;
+            }
+
+            _lines[index].x1 = _xStart.ToString();
+            _lines[index].x2 = _xEnd.ToString();
+            _lines[index].y1 = _yStart.ToString();
+            _lines[index].y2 = _yEnd.ToString();
+
+            _xStart = xStart;
+            _xEnd = xEnd;
+            _yStart = yStart;
+            _yEnd = yEnd;
+
+            return true;
+        }
+
+        public bool HighlightLine(int width, bool enable)
+        {
+            if (_lineIsHighlighted ^ enable)
+            {
+                // remove existing highlighting
+                if (_lineIsHighlighted)
+                {
+                    _lines.RemoveAt(_lines.Count - 1);
+                }
+                // add new highlighting
+                if (enable)
+                {
+                    int index = _lines.Count;
+                    _lines.Add(new Line());
+                    _lines[index].x1 = _xStart.ToString();
+                    _lines[index].x2 = _xEnd.ToString();
+                    _lines[index].y1 = _yStart.ToString();
+                    _lines[index].y2 = _yEnd.ToString();
+                    _lines[index].strokeWidth = width.ToString();
+                    _lines[index].stroke = _highlightColor;
+                }
+                _lineIsHighlighted = enable;
+                return true;
+            }
+            return false;
+        }
+
         public void GetLocation(out int xStart, out int xEnd, out int yStart, out int yEnd)
         {
             xStart = _xStart;
             xEnd = _xEnd;
             yStart = _yStart;
             yEnd = _yEnd;
+        }
+
+        public void AddGrid(int spacing, int xStart, int yStart, int width, int height)
+        {
+            int gridXstart = spacing * ((xStart+((xStart < 0) ? (1 - spacing) : (spacing - 1))) / spacing);
+            int gridYstart = spacing * ((yStart+((yStart < 0) ? (1 - spacing) : (spacing - 1))) / spacing);
+            for (int horizontalIndex = 0; horizontalIndex * spacing < width; horizontalIndex++)
+            {
+                int index = _lines.Count;
+                _lines.Add(new Line());
+                _lines[index].x1 = (gridXstart + (horizontalIndex * spacing)).ToString();
+                _lines[index].x2 = (gridXstart + (horizontalIndex * spacing)).ToString();
+                _lines[index].y1 = (yStart).ToString();
+                _lines[index].y2 = (yStart + height).ToString();
+                _lines[index].strokeWidth = (1).ToString();
+                _lines[index].stroke = _gridColor;
+            }
+            for (int verticalIndex = 0; verticalIndex * spacing < height; verticalIndex++)
+            {
+                int index = _lines.Count;
+                _lines.Add(new Line());
+                _lines[index].x1 = (xStart).ToString();
+                _lines[index].x2 = (xStart + width).ToString();
+                _lines[index].y1 = (gridYstart + (verticalIndex * spacing)).ToString();
+                _lines[index].y2 = (gridYstart + (verticalIndex * spacing)).ToString();
+                _lines[index].strokeWidth = (1).ToString();
+                _lines[index].stroke = _gridColor;
+            }
         }
 
         [XmlElement("rect")]
@@ -146,6 +238,8 @@ namespace Blocki.DrawElements
         private bool _rectBottomIsHighlighted = false;
         private bool _rectRightIsHighlighted = false;
         private bool _rectLeftIsHighlighted = false;
-        private const string _highlightColor = "orange";
+        private bool _lineIsHighlighted = false;
+        private const string _highlightColor = "#2896FA";
+        private const string _gridColor = "#202020";
     }
 }
