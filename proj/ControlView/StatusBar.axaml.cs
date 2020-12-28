@@ -1,5 +1,4 @@
-﻿using System;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Blocki.Notifications;
 
@@ -16,26 +15,32 @@ namespace Blocki.ControlView
         {
             AvaloniaXamlLoader.Load(this);
 
-            NotificationCenter.Instance.AddObserver(OnCursorChangedNotification, Notification.Id.CursorChanged);
-            NotificationCenter.Instance.AddObserver(OnZoomChangedNotification, Notification.Id.ZoomChanged);
+            NotificationCenter.Instance.AddObserver(StatusChangedNotification, Notification.Id.StatusChanged);
 
             _xPos = this.FindControl<TextBlock>("xPos");
             _yPos = this.FindControl<TextBlock>("yPos");
             _zoom = this.FindControl<TextBlock>("zoom");
+
+            _xPos.Text = "x - 0";
+            _yPos.Text = "y - 0";
+            _zoom.Text = "100%";
         }
 
-        private void OnCursorChangedNotification(Notification notification)
+        private void StatusChangedNotification(Notification notification)
         {
-            CursorChanged message = (CursorChanged)notification.Message;
-            _xPos.Text = "x:" + message.xPos.ToString();
-            _yPos.Text = "y:" + message.yPos.ToString();
-        }
-
-        private void OnZoomChangedNotification(Notification notification)
-        {
-            ZoomChanged message = (ZoomChanged)notification.Message;
-            int zoomPercent = Convert.ToInt32(message.zoom * 100.0);
-            _zoom.Text = zoomPercent.ToString() + "%";
+            StatusChanged message = (StatusChanged)notification.Message;
+            if (message.xPos != null)
+            {
+                _xPos.Text = "x - " + message.xPos.ToString();
+            }
+            if (message.yPos != null)
+            {
+                _yPos.Text = "y - " + message.yPos.ToString();
+            }
+            if (message.zoomPercent != null)
+            {
+                _zoom.Text = message.zoomPercent.ToString() + "%";
+            }
         }
 
         private TextBlock _xPos;

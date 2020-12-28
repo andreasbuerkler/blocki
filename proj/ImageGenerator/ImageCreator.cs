@@ -16,7 +16,7 @@ namespace Blocki.ImageGenerator
             NotificationCenter.Instance.AddObserver(OnZoomChangedNotification, Notification.Id.ZoomChanged);
         }
 
-        private void UpdateViewBox(int xPos, int yPos, double zoomDiff)
+        private void UpdateZoomViewBox(int xPos, int yPos, double zoomDiff)
         {
             double widthRatio = Convert.ToDouble(xPos) / Convert.ToDouble(_width);
             double widthOffset = _xStart + (_widthZoom * widthRatio);
@@ -38,34 +38,59 @@ namespace Blocki.ImageGenerator
             _container.SetViewBox(Convert.ToInt32(_xStart), Convert.ToInt32(_yStart), Convert.ToInt32(_widthZoom), Convert.ToInt32(_heightZoom));
         }
 
+        private void UpdatePanViewBox(int xPos, int yPos)
+        {
+            int xDiff = _lastXpos - xPos;
+            int yDiff = _lastYpos - yPos;
+            _xStart += Convert.ToDouble(xDiff) * _zoomFactor;
+            _yStart += Convert.ToDouble(yDiff) * _zoomFactor;
+            _container.SetViewBox(Convert.ToInt32(_xStart), Convert.ToInt32(_yStart), Convert.ToInt32(_widthZoom), Convert.ToInt32(_heightZoom));
+        }
+
         private void OnCursorChangedNotification(Notification notification)
         {
             CursorChanged message = (CursorChanged)notification.Message;
             int xPosViewBox = Convert.ToInt32(_xStart + (message.xPos * _zoomFactor));
             int yPosViewBox = Convert.ToInt32(_yStart + (message.yPos * _zoomFactor));
+            bool imageNeedsUpdate = false;
 
-            if ((message.buttonIsPressed) && (_activeButton == ButtonPressed.Id.AddBlock))
+            if ((message.leftButtonIsPressed) && (_activeButton == ButtonPressed.Id.AddBlock))
             {
                 _container.AddBlock(xPosViewBox, yPosViewBox);
-                UpdateImage();
+                imageNeedsUpdate = true;
             }
-            if ((message.buttonIsPressed) && (_activeButton == ButtonPressed.Id.Delete) && (_activeBlockId >= 0))
+            if ((message.leftButtonIsPressed) && (_activeButton == ButtonPressed.Id.Delete) && (_activeBlockId >= 0))
             {
                 _container.DeleteBlock(_activeBlockId);
-                UpdateImage();
+                imageNeedsUpdate = true;
             }
-            if (!message.buttonIsHold)
+
+            if (!message.leftButtonIsHold)
             {
                 if (_container.SelectBlock(xPosViewBox, yPosViewBox, out _activeBlockId))
                 {
-                    UpdateImage();
+                    imageNeedsUpdate = true;
                 }
             }
             else if ((_activeButton == ButtonPressed.Id.Move) && (_activeBlockId >= 0))
             {
                 _container.MoveBlock(_activeBlockId, xPosViewBox, yPosViewBox);
+                imageNeedsUpdate = true;
+            }
+
+            if (message.rightButtonIsHold)
+            {
+                UpdatePanViewBox(message.xPos, message.yPos);
+                imageNeedsUpdate = true;
+            }
+
+            if (imageNeedsUpdate)
+            {
                 UpdateImage();
             }
+            Notification newNotification = new Notification(new StatusChanged(null, xPosViewBox, yPosViewBox));
+            NotificationCenter.Instance.PostNotification(Notification.Id.StatusChanged, newNotification);
+
             _lastXpos = message.xPos;
             _lastYpos = message.yPos;
         }
@@ -91,23 +116,27 @@ namespace Blocki.ImageGenerator
             _height = message.height;
 
             if (!_viewboxIsInitialized) {
-                _xStart = 0;
                 _widthZoom = message.width;
-                _yStart = 0;
                 _heightZoom = message.height;
                 _viewboxIsInitialized = true;
             }
 
-            UpdateViewBox(0, 0, 1.0);
+            UpdateZoomViewBox(0, 0, 1.0);
             UpdateImage();
         }
 
         private void OnZoomChangedNotification(Notification notification)
         {
             ZoomChanged message = (ZoomChanged)notification.Message;
-            _zoomFactor *= message.zoom;
-            UpdateViewBox(_lastXpos, _lastYpos, message.zoom);
-            UpdateImage();
+            if (((_zoomFactor > 0.2) && (message.zoom < 1.0)) || ((_zoomFactor < 5.0) && (message.zoom > 1.0)))
+            {
+                _zoomFactor *= message.zoom;
+                UpdateZoomViewBox(_lastXpos, _lastYpos, message.zoom);
+                UpdateImage();
+            }
+
+            Notification newNotification = new Notification(new StatusChanged(Convert.ToInt32(_zoomFactor*100), null, null));
+            NotificationCenter.Instance.PostNotification(Notification.Id.StatusChanged, newNotification);
         }
 
         private void UpdateImage()

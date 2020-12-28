@@ -8,7 +8,8 @@
             ImageChanged,
             ButtonPressed,
             ZoomChanged,
-            DisplayedSizeChanged
+            DisplayedSizeChanged,
+            StatusChanged
         }
 
         public Notification(object message)

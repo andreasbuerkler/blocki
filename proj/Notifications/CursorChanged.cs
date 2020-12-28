@@ -2,13 +2,14 @@
 {
     public class CursorChanged
     {
-        public CursorChanged(int x, int y, bool pressed, bool released, bool hold)
+        public CursorChanged(int x, int y, bool leftButtonIsPressed, bool leftButtonIsReleased, bool leftButtonHold, bool rightButtonHold)
         {
             _xPos = x;
             _yPos = y;
-            _buttonIsPressed = pressed;
-            _buttonIsReleased = released;
-            _buttonIsHold = hold;
+            _leftButtonIsPressed = leftButtonIsPressed;
+            _leftButtonIsReleased = leftButtonIsReleased;
+            _leftButtonIsHold = leftButtonHold;
+            _rightButtonIsHold = rightButtonHold;
         }
 
         public int xPos
@@ -21,25 +22,31 @@
             get { return _yPos; }
         }
 
-        public bool buttonIsPressed
+        public bool leftButtonIsPressed
         {
-            get { return _buttonIsPressed; }
+            get { return _leftButtonIsPressed; }
         }
 
-        public bool buttonIsReleased
+        public bool leftButtonIsReleased
         {
-            get { return _buttonIsReleased; }
+            get { return _leftButtonIsReleased; }
         }
 
-        public bool buttonIsHold
+        public bool leftButtonIsHold
         {
-            get { return _buttonIsHold; }
+            get { return _leftButtonIsHold; }
+        }
+
+        public bool rightButtonIsHold
+        {
+            get { return _rightButtonIsHold; }
         }
 
         private readonly int _xPos;
         private readonly int _yPos;
-        private readonly bool _buttonIsPressed;
-        private readonly bool _buttonIsReleased;
-        private readonly bool _buttonIsHold;
+        private readonly bool _leftButtonIsPressed;
+        private readonly bool _leftButtonIsReleased;
+        private readonly bool _leftButtonIsHold;
+        private readonly bool _rightButtonIsHold;
     }
 }

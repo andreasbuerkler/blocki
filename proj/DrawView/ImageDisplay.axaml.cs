@@ -29,26 +29,44 @@ namespace Blocki.DrawView
 
         private void OnImageClick(object sender, PointerPressedEventArgs e)
         {
-            var cursorPosition = e.GetCurrentPoint(_imageCanvas);
+            PointerPoint cursorPosition = e.GetCurrentPoint(_imageCanvas);
+            bool leftButtonWasPressed = false;
             if (cursorPosition.Properties.IsLeftButtonPressed)
             {
-                _pressed = true;
+                _leftButtonIsPressed = true;
+                leftButtonWasPressed = true;
+            }
+            if (cursorPosition.Properties.IsRightButtonPressed)
+            {
+                _RightButtonIsPressed = true;
+            }
+            if ((cursorPosition.Properties.IsLeftButtonPressed) || (cursorPosition.Properties.IsRightButtonPressed))
+            {
                 int xPos = Convert.ToInt32(cursorPosition.Position.X);
                 int yPos = Convert.ToInt32(cursorPosition.Position.Y);
-                Notification notification = new Notification(new CursorChanged(xPos, yPos, true, false, _pressed));
+                Notification notification = new Notification(new CursorChanged(xPos, yPos, leftButtonWasPressed, false, _leftButtonIsPressed, _RightButtonIsPressed));
                 NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
             }
         }
 
         private void OnImageReleased(object sender, PointerReleasedEventArgs e)
         {
-            var cursorPosition = e.GetCurrentPoint(_imageCanvas);
+            PointerPoint cursorPosition = e.GetCurrentPoint(_imageCanvas);
+            bool leftButtonWasReleased = false;
             if (!cursorPosition.Properties.IsLeftButtonPressed)
             {
-                _pressed = false;
+                _leftButtonIsPressed = false;
+                leftButtonWasReleased = true;
+            }
+            if (!cursorPosition.Properties.IsRightButtonPressed)
+            {
+                _RightButtonIsPressed = false;
+            }
+            if ((!cursorPosition.Properties.IsLeftButtonPressed) || (!cursorPosition.Properties.IsRightButtonPressed))
+            {
                 int xPos = Convert.ToInt32(cursorPosition.Position.X);
                 int yPos = Convert.ToInt32(cursorPosition.Position.Y);
-                Notification notification = new Notification(new CursorChanged(xPos, yPos, false, true, _pressed));
+                Notification notification = new Notification(new CursorChanged(xPos, yPos, false, leftButtonWasReleased, _leftButtonIsPressed, _RightButtonIsPressed));
                 NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
             }
         }
@@ -58,7 +76,7 @@ namespace Blocki.DrawView
             PointerPoint cursorPosition = e.GetCurrentPoint(_imageCanvas);
             int xPos = Convert.ToInt32(cursorPosition.Position.X);
             int yPos = Convert.ToInt32(cursorPosition.Position.Y);
-            Notification notification = new Notification(new CursorChanged(xPos, yPos, false, false, _pressed));
+            Notification notification = new Notification(new CursorChanged(xPos, yPos, false, false, _leftButtonIsPressed, _RightButtonIsPressed));
             NotificationCenter.Instance.PostNotification(Notification.Id.CursorChanged, notification);
         }
 
@@ -81,6 +99,7 @@ namespace Blocki.DrawView
 
         private Image _svgResourceImage;
         private Canvas _imageCanvas;
-        private bool _pressed = false;
+        private bool _leftButtonIsPressed = false;
+        private bool _RightButtonIsPressed = false;
     }
 }
