@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Blocki.DrawElements
 {
-    public class Block
+    public class Container
     {
         public int AddRect(int xPos, int yPos, int width, int height)
         {
@@ -227,9 +227,26 @@ namespace Blocki.DrawElements
             get { return _texts; }
         }
 
-        private List<Rect> _rects = new List<Rect>();
-        private List<Line> _lines = new List<Line>();
-        private List<Text> _texts = new List<Text>();
+        public enum Type
+        {
+            Block,
+            Line,
+            Text,
+            Grid,
+            Unknown
+        }
+
+        [XmlIgnore]
+        public Type ContainerType
+        {
+            get { return _type; }
+            set { _type = value; }
+        }
+
+        private readonly List<Rect> _rects = new List<Rect>();
+        private readonly List<Line> _lines = new List<Line>();
+        private readonly List<Text> _texts = new List<Text>();
+        private Type _type = Type.Unknown;
         private int _xStart = -1;
         private int _xEnd = -1;
         private int _yStart = -1;

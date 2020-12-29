@@ -35,7 +35,9 @@ namespace Blocki.ImageGenerator
             _xStart += widthOffset;
             _yStart += heightOffset;
 
-            _container.SetViewBox(Convert.ToInt32(_xStart), Convert.ToInt32(_yStart), Convert.ToInt32(_widthZoom), Convert.ToInt32(_heightZoom));
+            _svg.SetViewBox(Convert.ToInt32(_xStart), Convert.ToInt32(_yStart), Convert.ToInt32(_widthZoom), Convert.ToInt32(_heightZoom));
+            _grid.Delete(_svg);
+            _grid.Add(_svg, xPos, yPos);
         }
 
         private void UpdatePanViewBox(int xPos, int yPos)
@@ -44,7 +46,9 @@ namespace Blocki.ImageGenerator
             int yDiff = _lastYpos - yPos;
             _xStart += Convert.ToDouble(xDiff) * _zoomFactor;
             _yStart += Convert.ToDouble(yDiff) * _zoomFactor;
-            _container.SetViewBox(Convert.ToInt32(_xStart), Convert.ToInt32(_yStart), Convert.ToInt32(_widthZoom), Convert.ToInt32(_heightZoom));
+            _svg.SetViewBox(Convert.ToInt32(_xStart), Convert.ToInt32(_yStart), Convert.ToInt32(_widthZoom), Convert.ToInt32(_heightZoom));
+            _grid.Delete(_svg);
+            _grid.Add(_svg, xPos, yPos);
         }
 
         private void OnCursorChangedNotification(Notification notification)
@@ -56,25 +60,25 @@ namespace Blocki.ImageGenerator
 
             if ((message.leftButtonIsPressed) && (_activeButton == ButtonPressed.Id.AddBlock))
             {
-                _container.AddBlock(xPosViewBox, yPosViewBox);
+                _block.Add(_svg, xPosViewBox, yPosViewBox);
                 imageNeedsUpdate = true;
             }
-            if ((message.leftButtonIsPressed) && (_activeButton == ButtonPressed.Id.Delete) && (_activeBlockId >= 0))
+            if ((message.leftButtonIsPressed) && (_activeButton == ButtonPressed.Id.Delete))
             {
-                _container.DeleteBlock(_activeBlockId);
+                _block.Delete(_svg);
                 imageNeedsUpdate = true;
             }
 
             if (!message.leftButtonIsHold)
             {
-                if (_container.SelectBlock(xPosViewBox, yPosViewBox, out _activeBlockId))
+                if(_block.Visitor(_svg, xPosViewBox, yPosViewBox))
                 {
                     imageNeedsUpdate = true;
                 }
             }
-            else if ((_activeButton == ButtonPressed.Id.Move) && (_activeBlockId >= 0))
+            else if (_activeButton == ButtonPressed.Id.Move)
             {
-                _container.MoveBlock(_activeBlockId, xPosViewBox, yPosViewBox);
+                _block.Move(_svg, xPosViewBox, yPosViewBox);
                 imageNeedsUpdate = true;
             }
 
@@ -98,7 +102,7 @@ namespace Blocki.ImageGenerator
         private string CreateImage()
         {
             MemoryStream _stream = new MemoryStream();
-            _serializer.Serialize(_stream, _container.container);
+            _serializer.Serialize(_stream, _svg);
             return Encoding.UTF8.GetString(_stream.ToArray());
         }
 
@@ -111,7 +115,7 @@ namespace Blocki.ImageGenerator
         private void OnDisplayedSizeChangedNotification(Notification notification)
         {
             DisplayedSizeChanged message = (DisplayedSizeChanged)notification.Message;
-            _container.SetImageSize(message.width, message.height);
+            _svg.SetImageSize(message.width, message.height);
             _width = message.width;
             _height = message.height;
 
@@ -145,12 +149,13 @@ namespace Blocki.ImageGenerator
             NotificationCenter.Instance.PostNotification(Notification.Id.ImageChanged, newNotification);
         }
 
+        private readonly DrawElements.Svg _svg = new DrawElements.Svg();
+        private readonly Grid _grid = new Grid();
+        private readonly Block _block = new Block();
         private ButtonPressed.Id _activeButton = ButtonPressed.Id.None;
-        private int _activeBlockId = -1;
         private int _lastXpos = 0;
         private int _lastYpos = 0;
-        private ImageContainer _container = new ImageContainer();
-        private XmlSerializer _serializer = new XmlSerializer(typeof(DrawElements.Svg));
+        private readonly XmlSerializer _serializer = new XmlSerializer(typeof(DrawElements.Svg));
         private int _width = 500;
         private int _height = 500;
         private double _xStart = 0;
@@ -159,6 +164,5 @@ namespace Blocki.ImageGenerator
         private double _heightZoom = 500;
         private double _zoomFactor = 1.0;
         private bool _viewboxIsInitialized = false;
-
     }
 }

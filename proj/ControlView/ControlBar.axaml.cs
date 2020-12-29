@@ -73,8 +73,8 @@ namespace Blocki.ControlView
             }
         }
 
-        private IBrush _inactiveButtonColor = new SolidColorBrush(Color.FromUInt32(0xFF404040), 1.0);
-        private IBrush _activeButtonColor = new SolidColorBrush(Colors.CornflowerBlue, 0.4);
+        private readonly IBrush _inactiveButtonColor = new SolidColorBrush(Color.FromUInt32(0xFF404040), 1.0);
+        private readonly IBrush _activeButtonColor = new SolidColorBrush(Colors.CornflowerBlue, 0.4);
         private Button _addButton;
         private Button _connectButton;
         private Button _deleteButton;

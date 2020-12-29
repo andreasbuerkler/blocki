@@ -48,7 +48,6 @@ namespace Blocki
         private UserControl _ControlPanel;
         private UserControl _StatusPanel;
         private UserControl _DrawPanel;
-        NotificationCenter _notificationCenter = new NotificationCenter();
-        ImageCreator _imageGenerator = new ImageCreator();
+        private readonly ImageCreator _imageGenerator = new ImageCreator();
     }
 }

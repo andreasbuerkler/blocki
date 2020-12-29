@@ -8,29 +8,34 @@ namespace Blocki.DrawElements
     [XmlRoot(Namespace = "http://www.w3.org/2000/svg", ElementName = "svg")]
     public class Svg
     {
-        public int AddBlockAtBack(Block newBlock)
+        public int GetNumberOfContainers()
         {
-            int id = _blocks.Count;
-            _blocks.Insert(0, newBlock);
+            return _content.Count;
+        }
+
+        public int AddContainerAtBack(Container newBlock)
+        {
+            int id = _content.Count;
+            _content.Insert(0, newBlock);
             return 0;
         }
 
-        public int AddBlockInFront(Block newBlock)
+        public int AddContainerInFront(Container newBlock)
         {
-            int id = _blocks.Count;
-            _blocks.Add(newBlock);
+            int id = _content.Count;
+            _content.Add(newBlock);
             return id;
         }
 
-        public bool RemoveBlock(int id)
+        public bool RemoveContainer(int id)
         {
-            _blocks.RemoveAt(id);
+            _content.RemoveAt(id);
             return true;
         }
 
-        public Block GetBlock(int id)
+        public Container GetContainer(int id)
         {
-            return _blocks[id];
+            return _content[id];
         }
 
         public void SetImageSize(int imageWidth, int imageHeight)
@@ -41,7 +46,19 @@ namespace Blocki.DrawElements
 
         public void SetViewBox(int xStart, int yStart, int width, int height)
         {
-            _viewbox = xStart.ToString() + " " + yStart.ToString() +" " + width.ToString() + " " + height.ToString();
+            _viewboxXstart = xStart;
+            _viewboxYstart = yStart;
+            _viewboxWidth = width;
+            _viewboxHeight = height;
+         _viewbox = xStart.ToString() + " " + yStart.ToString() +" " + width.ToString() + " " + height.ToString();
+        }
+
+        public void GetViewBox(out int xStart, out int yStart, out int width, out int height)
+        {
+            xStart = _viewboxXstart;
+            yStart = _viewboxYstart;
+            width = _viewboxWidth;
+            height = _viewboxHeight;
         }
 
         [XmlAttribute]
@@ -66,14 +83,18 @@ namespace Blocki.DrawElements
         }
 
         [XmlElement("g")]
-        public List<Block> blocks
+        public List<Container> content
         {
-            get { return _blocks; }
+            get { return _content; }
         }
 
         private int _width = 500;
         private int _height = 500;
+        private int _viewboxXstart = 0;
+        private int _viewboxYstart = 0;
+        private int _viewboxWidth = 500;
+        private int _viewboxHeight = 500;
         private string _viewbox = "0 0 500 500";
-        private List<Block> _blocks = new List<Block>();
+        private readonly List<Container> _content = new List<Container>();
     }
 }

@@ -21,8 +21,8 @@ namespace Blocki.ControlView
             _yPos = this.FindControl<TextBlock>("yPos");
             _zoom = this.FindControl<TextBlock>("zoom");
 
-            _xPos.Text = "x - 0";
-            _yPos.Text = "y - 0";
+            _xPos.Text = "x 0";
+            _yPos.Text = "y 0";
             _zoom.Text = "100%";
         }
 
@@ -31,11 +31,11 @@ namespace Blocki.ControlView
             StatusChanged message = (StatusChanged)notification.Message;
             if (message.xPos != null)
             {
-                _xPos.Text = "x - " + message.xPos.ToString();
+                _xPos.Text = "x " + message.xPos.ToString();
             }
             if (message.yPos != null)
             {
-                _yPos.Text = "y - " + message.yPos.ToString();
+                _yPos.Text = "y " + message.yPos.ToString();
             }
             if (message.zoomPercent != null)
             {
