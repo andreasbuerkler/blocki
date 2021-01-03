@@ -27,10 +27,9 @@ namespace Blocki.DrawElements
             return id;
         }
 
-        public bool RemoveContainer(int id)
+        public bool RemoveContainer(Container containerToRemove)
         {
-            _content.RemoveAt(id);
-            return true;
+            return _content.Remove(containerToRemove);
         }
 
         public Container GetContainer(int id)

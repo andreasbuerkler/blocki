@@ -7,7 +7,7 @@
             bool updateNeeded = false;
             bool containerFound = false;
             int numberOfContainers = svg.GetNumberOfContainers();
-            _index = -1;
+            _selectedContainer = null;
             if (numberOfContainers == 0)
             {
                 return false;
@@ -15,9 +15,10 @@
             for (int loopIndex = numberOfContainers - 1; loopIndex >= 0; loopIndex--)
             {
                 DrawElements.Container container = svg.GetContainer(loopIndex);
-                if (container.ContainerType == DrawElements.Container.Type.Block)
+                if ((container.ContainerType == DrawElements.Container.Type.Block) &&
+                    (container.ContainerStatus != DrawElements.Container.Status.SelectedForConnection))
                 {
-                    svg.content[loopIndex].GetLocation(out int xStart, out int xEnd, out int yStart, out int yEnd);
+                    container.GetLocation(out int xStart, out int xEnd, out int yStart, out int yEnd);
                     if ((xPos >= xStart) && (xPos <= xEnd) && (yPos >= yStart) && (yPos <= yEnd) && (!containerFound))
                     {
                         _xOffset = xPos - xStart;
@@ -34,12 +35,14 @@
                         {
                             updateNeeded |= container.HighlightRect(_highlightWidth, true, true, true, true);
                         }
-                        _index = loopIndex;
+                        container.ContainerStatus = DrawElements.Container.Status.Highlighted;
+                        _selectedContainer = container;
                         containerFound = true;
                     }
                     else
                     {
                         updateNeeded |= container.HighlightRect(_highlightWidth, false, false, false, false);
+                        container.ContainerStatus = DrawElements.Container.Status.Unknown;
                     }
                 }
             }
@@ -51,26 +54,24 @@
             DrawElements.Container container = new DrawElements.Container();
             container.AddRect(xPos-50, yPos-50, 100, 100);
             container.ContainerType = DrawElements.Container.Type.Block;
-            _index = svg.AddContainerInFront(container);
+            svg.AddContainerInFront(container);
         }
 
         public void Delete(DrawElements.Svg svg)
         {
-            if ((_index >= 0) && (_index < svg.GetNumberOfContainers()))
+            if (_selectedContainer != null)
             {
-                svg.RemoveContainer(_index);
-                _index = -1;
+                svg.RemoveContainer(_selectedContainer);
+                _selectedContainer = null;
             }
         }
 
         public void Move(DrawElements.Svg svg, int xPos, int yPos)
         {
-            if ((_index >= 0) && (_index < svg.GetNumberOfContainers()))
+            if (_selectedContainer != null)
             {
-                DrawElements.Container container = svg.GetContainer(_index);
-                container.HighlightRect(_highlightWidth, false, false, false, false);
-
-                container.GetLocation(out int xStart, out int xEnd, out int yStart, out int yEnd);
+                _selectedContainer.HighlightRect(_highlightWidth, false, false, false, false);
+                _selectedContainer.GetLocation(out int xStart, out int xEnd, out int yStart, out int yEnd);
                 int xDiff = xPos - _xOffset - xStart;
                 int yDiff = yPos - _yOffset - yStart;
                 int newXpos = xStart;
@@ -118,11 +119,10 @@
                     newWidth = 10;
                     _xOffset = 0;
                 }
-                container.ModifyRect(0, newXpos, newYpos, newWidth, newHeight);
+                _selectedContainer.ModifyRect(0, newXpos, newYpos, newWidth, newHeight);
             }
         }
 
-        private int _index = -1;
         private int _xOffset = 0;
         private int _yOffset = 0;
         private bool _topSelected = false;
@@ -130,5 +130,6 @@
         private bool _leftSelected = false;
         private bool _rightSelected = false;
         private const int _highlightWidth = 5;
+        private DrawElements.Container _selectedContainer = null;
     }
 }

@@ -68,6 +68,11 @@ namespace Blocki.ImageGenerator
                 _block.Delete(_svg);
                 imageNeedsUpdate = true;
             }
+            if ((message.leftButtonIsPressed) && (_activeButton == ButtonPressed.Id.Connect))
+            {
+                _connection.Add(_svg, xPosViewBox, yPosViewBox);
+                imageNeedsUpdate = true;
+            }
 
             if (!message.leftButtonIsHold)
             {
@@ -109,6 +114,10 @@ namespace Blocki.ImageGenerator
         private void OnButtonPressedNotification(Notification notification)
         {
             ButtonPressed message = (ButtonPressed)notification.Message;
+            if ((_activeButton == ButtonPressed.Id.Connect) && (message.buttonId != ButtonPressed.Id.Connect))
+            {
+                _connection.RemoveSelection(_svg);
+            }
             _activeButton = message.buttonId;
         }
 
@@ -152,6 +161,7 @@ namespace Blocki.ImageGenerator
         private readonly DrawElements.Svg _svg = new DrawElements.Svg();
         private readonly Grid _grid = new Grid();
         private readonly Block _block = new Block();
+        private readonly Connection _connection = new Connection();
         private ButtonPressed.Id _activeButton = ButtonPressed.Id.None;
         private int _lastXpos = 0;
         private int _lastYpos = 0;

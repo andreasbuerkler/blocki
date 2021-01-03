@@ -29,7 +29,7 @@ namespace Blocki.ImageGenerator
                 {
                     if (svg.GetContainer(i).ContainerType == DrawElements.Container.Type.Grid)
                     {
-                        svg.RemoveContainer(i);
+                        svg.RemoveContainer(svg.GetContainer(i));
                         break;
                     }
                 }

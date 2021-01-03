@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System;
+using System.Xml;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 
@@ -43,7 +44,9 @@ namespace Blocki.DrawElements
 
         public bool HighlightRect(int width, bool top, bool bottom, bool left, bool right)
         {
-            if ((_rectTopIsHighlighted ^ top) || (_rectBottomIsHighlighted ^ bottom) || (_rectLeftIsHighlighted ^ left) || (_rectRightIsHighlighted ^ right))
+            string color = (_status == Status.SelectedForConnection) ? _selectColor : _highlightColor;
+
+            if ((_rectTopIsHighlighted ^ top) || (_rectBottomIsHighlighted ^ bottom) || (_rectLeftIsHighlighted ^ left) || (_rectRightIsHighlighted ^ right) || (color != _color))
             {
                 // remove existing highlighting
                 foreach (bool remove in new List<bool> {_rectTopIsHighlighted, _rectBottomIsHighlighted, _rectLeftIsHighlighted, _rectRightIsHighlighted})
@@ -64,7 +67,7 @@ namespace Blocki.DrawElements
                     _lines[index].y1 = (_yStart+(width / 2)).ToString();
                     _lines[index].y2 = (_yStart+(width / 2)).ToString();
                     _lines[index].strokeWidth = width.ToString();
-                    _lines[index].stroke = _highlightColor;
+                    _lines[index].stroke = color;
                 }
                 if (bottom)
                 {
@@ -75,7 +78,7 @@ namespace Blocki.DrawElements
                     _lines[index].y1 = (_yEnd-(width / 2)).ToString();
                     _lines[index].y2 = (_yEnd-(width / 2)).ToString();
                     _lines[index].strokeWidth = width.ToString();
-                    _lines[index].stroke = _highlightColor;
+                    _lines[index].stroke = color;
                 }
                 if (left)
                 {
@@ -86,7 +89,7 @@ namespace Blocki.DrawElements
                     _lines[index].y1 = _yStart.ToString();
                     _lines[index].y2 = _yEnd.ToString();
                     _lines[index].strokeWidth = width.ToString();
-                    _lines[index].stroke = _highlightColor;
+                    _lines[index].stroke = color;
                 }
                 if (right)
                 {
@@ -97,13 +100,14 @@ namespace Blocki.DrawElements
                     _lines[index].y1 = _yStart.ToString();
                     _lines[index].y2 = _yEnd.ToString();
                     _lines[index].strokeWidth = width.ToString();
-                    _lines[index].stroke = _highlightColor;
+                    _lines[index].stroke = color;
                 }
 
                 _rectTopIsHighlighted = top;
                 _rectBottomIsHighlighted = bottom;
                 _rectLeftIsHighlighted = left;
                 _rectRightIsHighlighted = right;
+                _color = color;
                 return true;
             }
             return false;
@@ -113,10 +117,10 @@ namespace Blocki.DrawElements
         {
             int index = _lines.Count;
             _lines.Add(new Line());
-            _lines[index].x1 = _xStart.ToString();
-            _lines[index].x2 = _xEnd.ToString();
-            _lines[index].y1 = _yStart.ToString();
-            _lines[index].y2 = _yEnd.ToString();
+            _lines[index].x1 = xStart.ToString();
+            _lines[index].x2 = xEnd.ToString();
+            _lines[index].y1 = yStart.ToString();
+            _lines[index].y2 = yEnd.ToString();
 
             _xStart = xStart;
             _xEnd = xEnd;
@@ -133,10 +137,10 @@ namespace Blocki.DrawElements
                 return false;
             }
 
-            _lines[index].x1 = _xStart.ToString();
-            _lines[index].x2 = _xEnd.ToString();
-            _lines[index].y1 = _yStart.ToString();
-            _lines[index].y2 = _yEnd.ToString();
+            _lines[index].x1 = xStart.ToString();
+            _lines[index].x2 = xEnd.ToString();
+            _lines[index].y1 = yStart.ToString();
+            _lines[index].y2 = yEnd.ToString();
 
             _xStart = xStart;
             _xEnd = xEnd;
@@ -243,10 +247,30 @@ namespace Blocki.DrawElements
             set { _type = value; }
         }
 
+        public enum Status
+        {
+            Highlighted,
+            SelectedForConnection,
+            Unknown
+        }
+
+        [XmlIgnore]
+        public Status ContainerStatus
+        {
+            get { return _status; }
+            set { _status = value; }
+        }
+
+        public Guid GetId
+        {
+            get { return _id; }
+        }
+
         private readonly List<Rect> _rects = new List<Rect>();
         private readonly List<Line> _lines = new List<Line>();
         private readonly List<Text> _texts = new List<Text>();
         private Type _type = Type.Unknown;
+        private Status _status = Status.Unknown;
         private int _xStart = -1;
         private int _xEnd = -1;
         private int _yStart = -1;
@@ -256,7 +280,10 @@ namespace Blocki.DrawElements
         private bool _rectRightIsHighlighted = false;
         private bool _rectLeftIsHighlighted = false;
         private bool _lineIsHighlighted = false;
-        private const string _highlightColor = "#2896FA";
         private const string _gridColor = "#202020";
+        private const string _selectColor = "#E46416";
+        private const string _highlightColor = "#2896FA";
+        private string _color = "";
+        private readonly Guid _id = new Guid();
     }
 }
