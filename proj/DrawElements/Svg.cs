@@ -37,6 +37,16 @@ namespace Blocki.DrawElements
             return _content[id];
         }
 
+        public Container GetContainer(Guid id)
+        {
+            foreach (Container container in _content)
+            {
+                if (container.GetId == id)
+                    return container;
+            }
+            return null;
+        }
+
         public void SetImageSize(int imageWidth, int imageHeight)
         {
             _width = imageWidth;

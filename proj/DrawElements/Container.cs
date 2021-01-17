@@ -213,6 +213,21 @@ namespace Blocki.DrawElements
             }
         }
 
+        public void AddConnection(Connector connector)
+        {
+            _connectors.Add(connector);
+        }
+
+        public void RemoveConnection(Connector connector)
+        {
+            _connectors.Remove(connector);
+        }
+
+        public void GetConnections(out List<Connector> connectors)
+        {
+            connectors = _connectors;
+        }
+
         [XmlElement("rect")]
         public List<Rect> rects
         {
@@ -269,6 +284,7 @@ namespace Blocki.DrawElements
         private readonly List<Rect> _rects = new List<Rect>();
         private readonly List<Line> _lines = new List<Line>();
         private readonly List<Text> _texts = new List<Text>();
+        private readonly List<Connector> _connectors = new List<Connector>();
         private Type _type = Type.Unknown;
         private Status _status = Status.Unknown;
         private int _xStart = -1;
@@ -284,6 +300,6 @@ namespace Blocki.DrawElements
         private const string _selectColor = "#E46416";
         private const string _highlightColor = "#2896FA";
         private string _color = "";
-        private readonly Guid _id = new Guid();
+        private readonly Guid _id = Guid.NewGuid();
     }
 }

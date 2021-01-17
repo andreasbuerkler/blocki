@@ -1,4 +1,6 @@
-﻿namespace Blocki.ImageGenerator
+﻿using System.Collections.Generic;
+
+namespace Blocki.ImageGenerator
 {
     public class Block : IContainer
     {
@@ -61,6 +63,33 @@
         {
             if (_selectedContainer != null)
             {
+                // remove connections
+                List<DrawElements.Connector> connectorsOfBlock;
+                _selectedContainer.GetConnections(out connectorsOfBlock);
+                if (connectorsOfBlock.Count != 0)
+                {
+                    for (int i = connectorsOfBlock.Count - 1; i >= 0; i--)
+                    {
+                        DrawElements.Container dstContainer = null;
+                        if (connectorsOfBlock[i].IdSrc == _selectedContainer.GetId)
+                        {
+                            dstContainer = svg.GetContainer(connectorsOfBlock[i].IdDst);
+                        }
+                        else if (connectorsOfBlock[i].IdDst == _selectedContainer.GetId)
+                        {
+                            dstContainer = svg.GetContainer(connectorsOfBlock[i].IdSrc);
+                        }
+                        if (dstContainer != null)
+                        {
+                            List<DrawElements.Connector> connectorsOfDestination;
+                            dstContainer.GetConnections(out connectorsOfDestination);
+                            connectorsOfDestination.Remove(connectorsOfBlock[i]);
+                        }
+
+                        connectorsOfBlock.Remove(connectorsOfBlock[i]);
+                    }
+                }
+
                 svg.RemoveContainer(_selectedContainer);
                 _selectedContainer = null;
             }

@@ -95,6 +95,7 @@ namespace Blocki.ImageGenerator
 
             if (imageNeedsUpdate)
             {
+                _connection.Update(_svg);
                 UpdateImage();
             }
             Notification newNotification = new Notification(new StatusChanged(null, xPosViewBox, yPosViewBox));

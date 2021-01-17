@@ -27,9 +27,10 @@ namespace Blocki.ImageGenerator
             {
                 for (int i = 0; i < numberOfContainers; i++)
                 {
-                    if (svg.GetContainer(i).ContainerType == DrawElements.Container.Type.Grid)
+                    DrawElements.Container container = svg.GetContainer(i);
+                    if (container.ContainerType == DrawElements.Container.Type.Grid)
                     {
-                        svg.RemoveContainer(svg.GetContainer(i));
+                        svg.RemoveContainer(container);
                         break;
                     }
                 }

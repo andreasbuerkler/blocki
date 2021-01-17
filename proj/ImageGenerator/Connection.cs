@@ -1,4 +1,7 @@
-﻿namespace Blocki.ImageGenerator
+﻿using System;
+using System.Collections.Generic;
+
+namespace Blocki.ImageGenerator
 {
     public class Connection : IContainer
     {
@@ -7,63 +10,80 @@
             return false;
         }
 
-        public void Add(DrawElements.Svg svg, int xPos, int yPos)
+        public void Update(DrawElements.Svg svg)
         {
-            int numberOfContainers = svg.GetNumberOfContainers();
-            int numberOfSelectedContainers = 0;
-            DrawElements.Container firstContainer = null;
-            if (numberOfContainers == 0)
+            List<DrawElements.Connector> connectors;
+            DeleteConnections(svg);
+            CollectConnections(svg, out connectors);
+
+            foreach (DrawElements.Connector connector in connectors)
+            {
+                connector.SrcPosValid = false;
+                connector.DstPosValid = false;
+            }
+            foreach (DrawElements.Connector connector in connectors)
+            {
+                UpdateOrientation(svg, connector);
+            }
+            foreach (DrawElements.Connector connector in connectors)
+            {
+                UpdateSourceConnectionPoint(svg, connector);
+                UpdateDestinationConnectionPoint(svg, connector);
+                CreateConnection(svg, connector);
+            }
+        }
+
+        private void DeleteConnections(DrawElements.Svg svg)
+        {
+            if (svg.GetNumberOfContainers() == 0)
             {
                 return;
             }
-
-            for (int i=0; i< numberOfContainers; i++)
+            for (int i = svg.GetNumberOfContainers() - 1; i >= 0; i--)
             {
-                DrawElements.Container secondContainer = svg.GetContainer(i);
-                if (secondContainer.ContainerType == DrawElements.Container.Type.Block)
+                DrawElements.Container container = svg.GetContainer(i);
+                if (container.ContainerType == DrawElements.Container.Type.Line)
                 {
-                    if (secondContainer.ContainerStatus == DrawElements.Container.Status.SelectedForConnection)
+                    svg.RemoveContainer(container);
+                }
+            }
+        }
+
+        private void CollectConnections(DrawElements.Svg svg, out List<DrawElements.Connector> connectors)
+        {
+            connectors = new List<DrawElements.Connector>();
+            for (int i = svg.GetNumberOfContainers() - 1; i >= 0; i--)
+            {
+                DrawElements.Container container = svg.GetContainer(i);
+                if (container.ContainerType == DrawElements.Container.Type.Block)
+                {
+                    List<DrawElements.Connector> connectorsOfBlock;
+                    container.GetConnections(out connectorsOfBlock);
+                    if (connectorsOfBlock.Count != 0)
                     {
-                        if (numberOfSelectedContainers == 0)
+                        foreach (DrawElements.Connector connector in connectorsOfBlock)
                         {
-                            firstContainer = secondContainer;
+                            if (connector.IdSrc == container.GetId)
+                            {
+                                connectors.Add(connector);
+                            }
                         }
-                        numberOfSelectedContainers++;
-                    }
-                    else if (secondContainer.ContainerStatus == DrawElements.Container.Status.Highlighted)
-                    {
-                        secondContainer.ContainerStatus = DrawElements.Container.Status.SelectedForConnection;
-                        secondContainer.HighlightRect(_highlightWidth, true, true, true, true);
-                        if (numberOfSelectedContainers == 0)
-                        {
-                            firstContainer = secondContainer;
-                        }
-                        numberOfSelectedContainers++;
-                    }
-                    if (numberOfSelectedContainers == 2)
-                    {
-                        CreateConnection(svg, firstContainer, secondContainer);
-                        return;
                     }
                 }
             }
         }
 
-        private void CreateConnection(DrawElements.Svg svg, DrawElements.Container firstContainer, DrawElements.Container secondContainer)
+        private void UpdateOrientation(DrawElements.Svg svg, DrawElements.Connector connector)
         {
-            if (firstContainer.GetId == secondContainer.GetId)
+            DrawElements.Container srcContainer = svg.GetContainer(connector.IdSrc);
+            DrawElements.Container dstContainer = svg.GetContainer(connector.IdDst);
+            if ((srcContainer == null) || (dstContainer == null))
             {
-                firstContainer.ContainerStatus = DrawElements.Container.Status.Unknown;
-                firstContainer.HighlightRect(_highlightWidth, false, false, false, false);
+                return;
             }
 
-            firstContainer.ContainerStatus = DrawElements.Container.Status.Unknown;
-            secondContainer.ContainerStatus = DrawElements.Container.Status.Unknown;
-            firstContainer.HighlightRect(_highlightWidth, false, false, false, false);
-            secondContainer.HighlightRect(_highlightWidth, false, false, false, false);
-
-            firstContainer.GetLocation(out int xStartFirst, out int xEndFirst, out int yStartFirst, out int yEndFirst);
-            secondContainer.GetLocation(out int xStartSecond, out int xEndSecond, out int yStartSecond, out int yEndSecond);
+            srcContainer.GetLocation(out int xStartFirst, out int xEndFirst, out int yStartFirst, out int yEndFirst);
+            dstContainer.GetLocation(out int xStartSecond, out int xEndSecond, out int yStartSecond, out int yEndSecond);
 
             bool secondIsLeft = false;
             bool secondIsRight = false;
@@ -74,10 +94,12 @@
             {
                 secondIsLeft = true;
             }
+
             if (xStartSecond > (xEndFirst + _margin))
             {
                 secondIsRight = true;
             }
+
             if (yStartFirst > (yEndSecond + _margin))
             {
                 if (secondIsLeft)
@@ -101,6 +123,7 @@
                     secondIsTop = true;
                 }
             }
+
             if (yStartSecond > (yEndFirst + _margin))
             {
                 if (secondIsLeft)
@@ -125,48 +148,243 @@
                 }
             }
 
-            int connectionXstart = 0;
-            int connectionXend = 0;
-            int connectionYstart = 0;
-            int connectionYend = 0;
-
             if (secondIsLeft)
             {
-                connectionXstart = xEndSecond;
-                connectionXend = xStartFirst;
-                connectionYstart = yStartSecond + ((yEndSecond - yStartSecond) / 2);
-                connectionYend = yStartFirst + ((yEndFirst - yStartFirst) / 2);
+                connector.OrientationSrc = DrawElements.Connector.Orientation.Left;
+                connector.OrientationDst = DrawElements.Connector.Orientation.Right;
             }
             if (secondIsRight)
             {
-                connectionXstart = xEndFirst;
-                connectionXend = xStartSecond;
-                connectionYstart = yStartFirst + ((yEndFirst - yStartFirst) / 2);
-                connectionYend = yStartSecond + ((yEndSecond - yStartSecond) / 2);
+                connector.OrientationSrc = DrawElements.Connector.Orientation.Right;
+                connector.OrientationDst = DrawElements.Connector.Orientation.Left;
             }
             if (secondIsTop)
             {
-                connectionXstart = xStartSecond + ((xEndSecond - xStartSecond) / 2);
-                connectionXend = xStartFirst + ((xEndFirst - xStartFirst) / 2);
-                connectionYstart = yEndSecond;
-                connectionYend = yStartFirst;
+                connector.OrientationSrc = DrawElements.Connector.Orientation.Top;
+                connector.OrientationDst = DrawElements.Connector.Orientation.Bottom;
             }
             if (secondIsBottom)
             {
-                connectionXstart = xStartFirst + ((xEndFirst - xStartFirst) / 2);
-                connectionXend = xStartSecond + ((xEndSecond - xStartSecond) / 2);
-                connectionYstart = yEndFirst;
-                connectionYend = yStartSecond;
+                connector.OrientationSrc = DrawElements.Connector.Orientation.Bottom;
+                connector.OrientationDst = DrawElements.Connector.Orientation.Top;
+            }
+        }
+
+        private void GetSortedListOfConnections(DrawElements.Svg svg, out SortedList<int, DrawElements.Connector> connectorList, DrawElements.Container container, DrawElements.Connector.Orientation orientation)
+        {
+            connectorList = new SortedList<int, DrawElements.Connector>();
+            List<DrawElements.Connector> connectorsOfBlock;
+            container.GetConnections(out connectorsOfBlock);
+            Guid connectedBlockId;
+
+            foreach (DrawElements.Connector connectorOfBlock in connectorsOfBlock)
+            {
+                DrawElements.Connector.Orientation orientationOfBlockConnector;
+                if (connectorOfBlock.IdDst == container.GetId)
+                {
+                    orientationOfBlockConnector = connectorOfBlock.OrientationDst;
+                    connectedBlockId = connectorOfBlock.IdSrc;
+                }
+                else
+                {
+                    orientationOfBlockConnector = connectorOfBlock.OrientationSrc;
+                    connectedBlockId = connectorOfBlock.IdDst;
+                }
+
+                if (orientationOfBlockConnector == orientation)
+                {
+                    int index;
+                    DrawElements.Container connectedContainer = svg.GetContainer(connectedBlockId);
+                    connectedContainer.GetLocation(out int xStartTmp, out int xEndTmp, out int yStartTmp, out int yEndTmp);
+                    if ((orientation == DrawElements.Connector.Orientation.Top) || (orientation == DrawElements.Connector.Orientation.Bottom))
+                    {
+                        index = xStartTmp + (xEndTmp - xStartTmp);
+                        while (connectorList.ContainsKey(index))
+                        {
+                            index++;
+                        }
+                    }
+                    else
+                    {
+                        index = yStartTmp + (yEndTmp - yStartTmp);
+                        while (connectorList.ContainsKey(index))
+                        {
+                            index++;
+                        }
+                    }
+                    connectorList.Add(index, connectorOfBlock);
+                }
+            }
+        }
+
+        private void UpdateSourceConnectionPoint(DrawElements.Svg svg, DrawElements.Connector connector)
+        {
+            DrawElements.Container srcContainer = svg.GetContainer(connector.IdSrc);
+            DrawElements.Container dstContainer = svg.GetContainer(connector.IdDst);
+            if ((srcContainer == null) || (dstContainer == null))
+            {
+                return;
             }
 
+            SortedList<int, DrawElements.Connector> connectorList;
+            int ownKey = -1;
 
+            GetSortedListOfConnections(svg, out connectorList, srcContainer, connector.OrientationSrc);
+            foreach (KeyValuePair<int, DrawElements.Connector> connectorPair in connectorList)
+            {
+                if ((!connectorPair.Value.SrcPosValid) && (connectorPair.Value.IdDst == dstContainer.GetId))
+                {
+                    connectorPair.Value.SrcPosValid = true;
+                    ownKey = connectorPair.Key;
+                    break;
+                }
+            }
+
+            srcContainer.GetLocation(out int xStartFirst, out int xEndFirst, out int yStartFirst, out int yEndFirst);
+
+            int totalNumberOfPoints = connectorList.Count;
+            int index = connectorList.IndexOfKey(ownKey)+1;
+            if (connector.OrientationSrc == DrawElements.Connector.Orientation.Left)
+            {
+                connector.XposSrc = xStartFirst;
+                connector.YposSrc = yStartFirst + index*((yEndFirst - yStartFirst) / (totalNumberOfPoints+1));
+            }
+            if (connector.OrientationSrc == DrawElements.Connector.Orientation.Right)
+            {
+                connector.XposSrc = xEndFirst;
+                connector.YposSrc = yStartFirst + index * ((yEndFirst - yStartFirst) / (totalNumberOfPoints + 1));
+            }
+            if (connector.OrientationSrc == DrawElements.Connector.Orientation.Top)
+            {
+                connector.XposSrc = xStartFirst + index * ((xEndFirst - xStartFirst) / (totalNumberOfPoints + 1));
+                connector.YposSrc = yStartFirst;
+            }
+            if (connector.OrientationSrc == DrawElements.Connector.Orientation.Bottom)
+            {
+                connector.XposSrc = xStartFirst + index * ((xEndFirst - xStartFirst) / (totalNumberOfPoints + 1));
+                connector.YposSrc = yEndFirst;
+            }
+        }
+
+        private void UpdateDestinationConnectionPoint(DrawElements.Svg svg, DrawElements.Connector connector)
+        {
+            DrawElements.Container srcContainer = svg.GetContainer(connector.IdSrc);
+            DrawElements.Container dstContainer = svg.GetContainer(connector.IdDst);
+            if ((srcContainer == null) || (dstContainer == null))
+            {
+                return;
+            }
+
+            SortedList<int, DrawElements.Connector> connectorList;
+            int ownKey = -1;
+
+            GetSortedListOfConnections(svg, out connectorList, dstContainer, connector.OrientationDst);
+            foreach (KeyValuePair<int, DrawElements.Connector> connectorPair in connectorList)
+            {
+                if ((!connectorPair.Value.DstPosValid) && (connectorPair.Value.IdSrc == srcContainer.GetId))
+                {
+                    connectorPair.Value.DstPosValid = true;
+                    ownKey = connectorPair.Key;
+                    break;
+                }
+            }
+
+            dstContainer.GetLocation(out int xStartSecond, out int xEndSecond, out int yStartSecond, out int yEndSecond);
+            int totalNumberOfPoints = connectorList.Count;
+            int index = connectorList.IndexOfKey(ownKey) + 1;
+            if (connector.OrientationSrc == DrawElements.Connector.Orientation.Left)
+            {
+                connector.XposDst = xEndSecond;
+                connector.YposDst = yStartSecond + index * ((yEndSecond - yStartSecond) / (totalNumberOfPoints + 1));
+            }
+            if (connector.OrientationSrc == DrawElements.Connector.Orientation.Right)
+            {
+                connector.XposDst = xStartSecond;
+                connector.YposDst = yStartSecond + index * ((yEndSecond - yStartSecond) / (totalNumberOfPoints + 1));
+            }
+            if (connector.OrientationSrc == DrawElements.Connector.Orientation.Top)
+            {
+                connector.XposDst = xStartSecond + index * ((xEndSecond - xStartSecond) / (totalNumberOfPoints + 1));
+                connector.YposDst = yEndSecond;
+            }
+            if (connector.OrientationSrc == DrawElements.Connector.Orientation.Bottom)
+            {
+                connector.XposDst = xStartSecond + index * ((xEndSecond - xStartSecond) / (totalNumberOfPoints + 1));
+                connector.YposDst = yStartSecond;
+            }
+        }
+
+        private void CreateConnection(DrawElements.Svg svg, DrawElements.Connector connector)
+        {
             DrawElements.Container container = new DrawElements.Container();
-            container.AddLine(connectionXstart, connectionXend, connectionYstart, connectionYend);
+            container.AddLine(connector.XposSrc, connector.XposDst, connector.YposSrc, connector.YposDst);
             container.ContainerType = DrawElements.Container.Type.Line;
             svg.AddContainerInFront(container);
+        }
 
+        public void Add(DrawElements.Svg svg, int xPos, int yPos)
+        {
+            int numberOfContainers = svg.GetNumberOfContainers();
+            if (numberOfContainers == 0)
+            {
+                return;
+            }
 
-            // TODO: container needs anchor points (top, bottom, left, right - list of points), set here points and make connection
+            DrawElements.Container highlightedContainer = null;
+            DrawElements.Container selectedContainer = null;
+
+            for (int i = 0; i < numberOfContainers; i++)
+            {
+                DrawElements.Container container = svg.GetContainer(i);
+                if (container.ContainerType == DrawElements.Container.Type.Block)
+                {
+                    if (container.ContainerStatus == DrawElements.Container.Status.SelectedForConnection)
+                    {
+                        selectedContainer = container;
+                        break;
+                    }
+                }
+            }
+
+            for (int i = 0; i < numberOfContainers; i++)
+            {
+                DrawElements.Container container = svg.GetContainer(i);
+                if (container.ContainerType == DrawElements.Container.Type.Block)
+                {
+                    if (container.ContainerStatus == DrawElements.Container.Status.Highlighted)
+                    {
+                        container.ContainerStatus = DrawElements.Container.Status.SelectedForConnection;
+                        container.HighlightRect(_highlightWidth, true, true, true, true);
+                        highlightedContainer = container;
+                        break;
+                    }
+                }
+            }
+
+            if (selectedContainer != null)
+            {
+                if (highlightedContainer == null)
+                {
+                    // same or no container selected
+                    selectedContainer.ContainerStatus = DrawElements.Container.Status.Unknown;
+                    selectedContainer.HighlightRect(_highlightWidth, false, false, false, false);
+                }
+                else
+                {
+                    // remove highlighting
+                    selectedContainer.ContainerStatus = DrawElements.Container.Status.Unknown;
+                    highlightedContainer.ContainerStatus = DrawElements.Container.Status.Unknown;
+                    selectedContainer.HighlightRect(_highlightWidth, false, false, false, false);
+                    highlightedContainer.HighlightRect(_highlightWidth, false, false, false, false);
+
+                    // create connection
+                    DrawElements.Connector connector = new DrawElements.Connector();
+                    connector.IdDst = selectedContainer.GetId;
+                    connector.IdSrc = highlightedContainer.GetId;
+                    selectedContainer.AddConnection(connector);
+                    highlightedContainer.AddConnection(connector);
+                }
+            }
         }
 
         public void RemoveSelection(DrawElements.Svg svg)
