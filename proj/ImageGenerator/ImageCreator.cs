@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 using Blocki.Notifications;
+using Blocki.Helper;
 
 namespace Blocki.ImageGenerator
 {
@@ -10,10 +11,10 @@ namespace Blocki.ImageGenerator
     {
         public ImageCreator()
         {
-            NotificationCenter.Instance.AddObserver(OnCursorChangedNotification, Notification.Id.CursorChanged);
-            NotificationCenter.Instance.AddObserver(OnButtonPressedNotification, Notification.Id.ButtonPressed);
-            NotificationCenter.Instance.AddObserver(OnDisplayedSizeChangedNotification, Notification.Id.DisplayedSizeChanged);
-            NotificationCenter.Instance.AddObserver(OnZoomChangedNotification, Notification.Id.ZoomChanged);
+            NotificationCenter.Instance.AddObserver(OnCursorChangedNotification, Definitions.NotificationId.CursorChanged);
+            NotificationCenter.Instance.AddObserver(OnButtonPressedNotification, Definitions.NotificationId.ButtonPressed);
+            NotificationCenter.Instance.AddObserver(OnDisplayedSizeChangedNotification, Definitions.NotificationId.DisplayedSizeChanged);
+            NotificationCenter.Instance.AddObserver(OnZoomChangedNotification, Definitions.NotificationId.ZoomChanged);
         }
 
         private void UpdateZoomViewBox(int xPos, int yPos, double zoomDiff)
@@ -58,17 +59,17 @@ namespace Blocki.ImageGenerator
             int yPosViewBox = Convert.ToInt32(_yStart + (message.yPos * _zoomFactor));
             bool imageNeedsUpdate = false;
 
-            if ((message.leftButtonIsPressed) && (_activeButton == ButtonPressed.Id.AddBlock))
+            if ((message.leftButtonIsPressed) && (_activeButton == Definitions.ButtonId.AddBlock))
             {
                 _block.Add(_svg, xPosViewBox, yPosViewBox);
                 imageNeedsUpdate = true;
             }
-            if ((message.leftButtonIsPressed) && (_activeButton == ButtonPressed.Id.Delete))
+            if ((message.leftButtonIsPressed) && (_activeButton == Definitions.ButtonId.Delete))
             {
                 _block.Delete(_svg);
                 imageNeedsUpdate = true;
             }
-            if ((message.leftButtonIsPressed) && (_activeButton == ButtonPressed.Id.Connect))
+            if ((message.leftButtonIsPressed) && (_activeButton == Definitions.ButtonId.Connect))
             {
                 _connection.Add(_svg, xPosViewBox, yPosViewBox);
                 imageNeedsUpdate = true;
@@ -81,7 +82,7 @@ namespace Blocki.ImageGenerator
                     imageNeedsUpdate = true;
                 }
             }
-            else if (_activeButton == ButtonPressed.Id.Move)
+            else if (_activeButton == Definitions.ButtonId.Move)
             {
                 _block.Move(_svg, xPosViewBox, yPosViewBox);
                 imageNeedsUpdate = true;
@@ -99,7 +100,7 @@ namespace Blocki.ImageGenerator
                 UpdateImage();
             }
             Notification newNotification = new Notification(new StatusChanged(null, xPosViewBox, yPosViewBox));
-            NotificationCenter.Instance.PostNotification(Notification.Id.StatusChanged, newNotification);
+            NotificationCenter.Instance.PostNotification(Definitions.NotificationId.StatusChanged, newNotification);
 
             _lastXpos = message.xPos;
             _lastYpos = message.yPos;
@@ -115,7 +116,7 @@ namespace Blocki.ImageGenerator
         private void OnButtonPressedNotification(Notification notification)
         {
             ButtonPressed message = (ButtonPressed)notification.Message;
-            if ((_activeButton == ButtonPressed.Id.Connect) && (message.buttonId != ButtonPressed.Id.Connect))
+            if ((_activeButton == Definitions.ButtonId.Connect) && (message.buttonId != Definitions.ButtonId.Connect))
             {
                 _connection.RemoveSelection(_svg);
             }
@@ -150,20 +151,20 @@ namespace Blocki.ImageGenerator
             }
 
             Notification newNotification = new Notification(new StatusChanged(Convert.ToInt32(_zoomFactor*100), null, null));
-            NotificationCenter.Instance.PostNotification(Notification.Id.StatusChanged, newNotification);
+            NotificationCenter.Instance.PostNotification(Definitions.NotificationId.StatusChanged, newNotification);
         }
 
         private void UpdateImage()
         {
             Notification newNotification = new Notification(new ImageChanged(CreateImage()));
-            NotificationCenter.Instance.PostNotification(Notification.Id.ImageChanged, newNotification);
+            NotificationCenter.Instance.PostNotification(Definitions.NotificationId.ImageChanged, newNotification);
         }
 
         private readonly DrawElements.Svg _svg = new DrawElements.Svg();
         private readonly Grid _grid = new Grid();
         private readonly Block _block = new Block();
         private readonly Connection _connection = new Connection();
-        private ButtonPressed.Id _activeButton = ButtonPressed.Id.None;
+        private Definitions.ButtonId _activeButton = Definitions.ButtonId.None;
         private int _lastXpos = 0;
         private int _lastYpos = 0;
         private readonly XmlSerializer _serializer = new XmlSerializer(typeof(DrawElements.Svg));

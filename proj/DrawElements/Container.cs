@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Xml.Serialization;
 using System.Collections.Generic;
+using Blocki.Helper;
 
 namespace Blocki.DrawElements
 {
@@ -44,7 +45,7 @@ namespace Blocki.DrawElements
 
         public bool HighlightRect(int width, bool top, bool bottom, bool left, bool right)
         {
-            string color = (_status == Status.SelectedForConnection) ? _selectColor : _highlightColor;
+            string color = (_status == Definitions.ContainerStatus.SelectedForConnection) ? _selectColor : _highlightColor;
 
             if ((_rectTopIsHighlighted ^ top) || (_rectBottomIsHighlighted ^ bottom) || (_rectLeftIsHighlighted ^ left) || (_rectRightIsHighlighted ^ right) || (color != _color))
             {
@@ -246,31 +247,15 @@ namespace Blocki.DrawElements
             get { return _texts; }
         }
 
-        public enum Type
-        {
-            Block,
-            Line,
-            Text,
-            Grid,
-            Unknown
-        }
-
         [XmlIgnore]
-        public Type ContainerType
+        public Definitions.ContainerType ContainerType
         {
             get { return _type; }
             set { _type = value; }
         }
 
-        public enum Status
-        {
-            Highlighted,
-            SelectedForConnection,
-            Unknown
-        }
-
         [XmlIgnore]
-        public Status ContainerStatus
+        public Definitions.ContainerStatus ContainerStatus
         {
             get { return _status; }
             set { _status = value; }
@@ -285,8 +270,8 @@ namespace Blocki.DrawElements
         private readonly List<Line> _lines = new List<Line>();
         private readonly List<Text> _texts = new List<Text>();
         private readonly List<Connector> _connectors = new List<Connector>();
-        private Type _type = Type.Unknown;
-        private Status _status = Status.Unknown;
+        private Definitions.ContainerType _type = Definitions.ContainerType.Unknown;
+        private Definitions.ContainerStatus _status = Definitions.ContainerStatus.Unknown;
         private int _xStart = -1;
         private int _xEnd = -1;
         private int _yStart = -1;

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Blocki.Helper;
+using Blocki.DrawElements;
 
 namespace Blocki.ImageGenerator
 {
@@ -16,9 +18,9 @@ namespace Blocki.ImageGenerator
             }
             for (int loopIndex = numberOfContainers - 1; loopIndex >= 0; loopIndex--)
             {
-                DrawElements.Container container = svg.GetContainer(loopIndex);
-                if ((container.ContainerType == DrawElements.Container.Type.Block) &&
-                    (container.ContainerStatus != DrawElements.Container.Status.SelectedForConnection))
+                Container container = svg.GetContainer(loopIndex);
+                if ((container.ContainerType == Definitions.ContainerType.Block) &&
+                    (container.ContainerStatus != Definitions.ContainerStatus.SelectedForConnection))
                 {
                     container.GetLocation(out int xStart, out int xEnd, out int yStart, out int yEnd);
                     if ((xPos >= xStart) && (xPos <= xEnd) && (yPos >= yStart) && (yPos <= yEnd) && (!containerFound))
@@ -37,14 +39,14 @@ namespace Blocki.ImageGenerator
                         {
                             updateNeeded |= container.HighlightRect(_highlightWidth, true, true, true, true);
                         }
-                        container.ContainerStatus = DrawElements.Container.Status.Highlighted;
+                        container.ContainerStatus = Definitions.ContainerStatus.Highlighted;
                         _selectedContainer = container;
                         containerFound = true;
                     }
                     else
                     {
                         updateNeeded |= container.HighlightRect(_highlightWidth, false, false, false, false);
-                        container.ContainerStatus = DrawElements.Container.Status.Unknown;
+                        container.ContainerStatus = Definitions.ContainerStatus.Unknown;
                     }
                 }
             }
@@ -53,9 +55,9 @@ namespace Blocki.ImageGenerator
 
         public void Add(DrawElements.Svg svg, int xPos, int yPos)
         {
-            DrawElements.Container container = new DrawElements.Container();
+            Container container = new Container();
             container.AddRect(xPos-50, yPos-50, 100, 100);
-            container.ContainerType = DrawElements.Container.Type.Block;
+            container.ContainerType = Definitions.ContainerType.Block;
             svg.AddContainerInFront(container);
         }
 
@@ -64,13 +66,13 @@ namespace Blocki.ImageGenerator
             if (_selectedContainer != null)
             {
                 // remove connections
-                List<DrawElements.Connector> connectorsOfBlock;
+                List<Connector> connectorsOfBlock;
                 _selectedContainer.GetConnections(out connectorsOfBlock);
                 if (connectorsOfBlock.Count != 0)
                 {
                     for (int i = connectorsOfBlock.Count - 1; i >= 0; i--)
                     {
-                        DrawElements.Container dstContainer = null;
+                        Container dstContainer = null;
                         if (connectorsOfBlock[i].IdSrc == _selectedContainer.GetId)
                         {
                             dstContainer = svg.GetContainer(connectorsOfBlock[i].IdDst);
@@ -81,7 +83,7 @@ namespace Blocki.ImageGenerator
                         }
                         if (dstContainer != null)
                         {
-                            List<DrawElements.Connector> connectorsOfDestination;
+                            List<Connector> connectorsOfDestination;
                             dstContainer.GetConnections(out connectorsOfDestination);
                             connectorsOfDestination.Remove(connectorsOfBlock[i]);
                         }
@@ -159,6 +161,6 @@ namespace Blocki.ImageGenerator
         private bool _leftSelected = false;
         private bool _rightSelected = false;
         private const int _highlightWidth = 5;
-        private DrawElements.Container _selectedContainer = null;
+        private Container _selectedContainer = null;
     }
 }

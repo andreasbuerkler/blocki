@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Blocki.Notifications;
+using Blocki.Helper;
 
 namespace Blocki.ControlView
 {
@@ -15,7 +16,7 @@ namespace Blocki.ControlView
         {
             AvaloniaXamlLoader.Load(this);
 
-            NotificationCenter.Instance.AddObserver(StatusChangedNotification, Notification.Id.StatusChanged);
+            NotificationCenter.Instance.AddObserver(StatusChangedNotification, Definitions.NotificationId.StatusChanged);
 
             _xPos = this.FindControl<TextBlock>("xPos");
             _yPos = this.FindControl<TextBlock>("yPos");

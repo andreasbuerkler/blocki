@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Blocki.DrawElements
+namespace Blocki.Helper
 {
     public class Connector
     {
@@ -16,13 +16,13 @@ namespace Blocki.DrawElements
             set { _idDst = value; }
         }
 
-        public Orientation OrientationSrc
+        public Definitions.Orientation OrientationSrc
         {
             get { return _orientationSrc; }
             set { _orientationSrc = value; }
         }
 
-        public Orientation OrientationDst
+        public Definitions.Orientation OrientationDst
         {
             get { return _orientationDst; }
             set { _orientationDst = value; }
@@ -64,18 +64,10 @@ namespace Blocki.DrawElements
             set { _dstPosValid = value; }
         }
 
-        public enum Orientation
-        {
-            Left,
-            Right,
-            Top,
-            Bottom
-        }
-
         private Guid _idSrc;
         private Guid _idDst;
-        private Orientation _orientationSrc;
-        private Orientation _orientationDst;
+        private Definitions.Orientation _orientationSrc;
+        private Definitions.Orientation _orientationDst;
         private int _xPosSrc;
         private int _yPosSrc;
         private int _xPosDst;

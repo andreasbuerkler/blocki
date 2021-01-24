@@ -3,6 +3,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Blocki.Notifications;
+using Blocki.Helper;
 
 namespace Blocki.ControlView
 {
@@ -30,35 +31,35 @@ namespace Blocki.ControlView
         private void OnAddButtonClick(object sender, RoutedEventArgs e)
         {
             SetButtonColor((Button)sender);
-            Notification notification = new Notification(new ButtonPressed(ButtonPressed.Id.AddBlock));
-            NotificationCenter.Instance.PostNotification(Notification.Id.ButtonPressed, notification);
+            Notification notification = new Notification(new ButtonPressed(Definitions.ButtonId.AddBlock));
+            NotificationCenter.Instance.PostNotification(Definitions.NotificationId.ButtonPressed, notification);
         }
 
         private void OnConnectButtonClick(object sender, RoutedEventArgs e)
         {
             SetButtonColor((Button)sender);
-            Notification notification = new Notification(new ButtonPressed(ButtonPressed.Id.Connect));
-            NotificationCenter.Instance.PostNotification(Notification.Id.ButtonPressed, notification);
+            Notification notification = new Notification(new ButtonPressed(Definitions.ButtonId.Connect));
+            NotificationCenter.Instance.PostNotification(Definitions.NotificationId.ButtonPressed, notification);
         }
 
         private void OnDeleteButtonClick(object sender, RoutedEventArgs e)
         {
             SetButtonColor((Button)sender);
-            Notification notification = new Notification(new ButtonPressed(ButtonPressed.Id.Delete));
-            NotificationCenter.Instance.PostNotification(Notification.Id.ButtonPressed, notification);
+            Notification notification = new Notification(new ButtonPressed(Definitions.ButtonId.Delete));
+            NotificationCenter.Instance.PostNotification(Definitions.NotificationId.ButtonPressed, notification);
         }
 
         private void OnMoveButtonClick(object sender, RoutedEventArgs e)
         {
             SetButtonColor((Button)sender);
-            Notification notification = new Notification(new ButtonPressed(ButtonPressed.Id.Move));
-            NotificationCenter.Instance.PostNotification(Notification.Id.ButtonPressed, notification);
+            Notification notification = new Notification(new ButtonPressed(Definitions.ButtonId.Move));
+            NotificationCenter.Instance.PostNotification(Definitions.NotificationId.ButtonPressed, notification);
         }
 
         private void OnSaveButtonClick(object sender, RoutedEventArgs e)
         {
-            Notification notification = new Notification(new ButtonPressed(ButtonPressed.Id.Save));
-            NotificationCenter.Instance.PostNotification(Notification.Id.ButtonPressed, notification);
+            Notification notification = new Notification(new ButtonPressed(Definitions.ButtonId.Save));
+            NotificationCenter.Instance.PostNotification(Definitions.NotificationId.ButtonPressed, notification);
         }
 
         private void SetButtonColor(Button activeButton)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Blocki.Helper;
 
 namespace Blocki.Notifications
 {
@@ -9,7 +10,7 @@ namespace Blocki.Notifications
             get { return _instance; }
         }
 
-        public void AddObserver(NotificationDelegate p_notificationDelegate, Notification.Id notificationId)
+        public void AddObserver(NotificationDelegate p_notificationDelegate, Definitions.NotificationId notificationId)
         {
             List<NotificationDelegate> delegatesCollection;
             if (!_notificationCollection.TryGetValue(notificationId, out delegatesCollection))
@@ -20,7 +21,7 @@ namespace Blocki.Notifications
            delegatesCollection.Add(p_notificationDelegate);
         }
 
-        public void PostNotification(Notification.Id notificationId, Notification p_notification)
+        public void PostNotification(Definitions.NotificationId notificationId, Notification p_notification)
         {
             List<NotificationDelegate> delegatesCollection;
             if (_notificationCollection.TryGetValue(notificationId, out delegatesCollection))
@@ -34,6 +35,6 @@ namespace Blocki.Notifications
 
         public delegate void NotificationDelegate(Notification p_notification);
         private static NotificationCenter _instance = new NotificationCenter();
-        private readonly Dictionary<Notification.Id, List<NotificationDelegate>> _notificationCollection = new Dictionary<Notification.Id, List<NotificationDelegate>>();
+        private readonly Dictionary<Definitions.NotificationId, List<NotificationDelegate>> _notificationCollection = new Dictionary<Definitions.NotificationId, List<NotificationDelegate>>();
     }
 }

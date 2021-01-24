@@ -1,27 +1,19 @@
-﻿namespace Blocki.Notifications
+﻿using Blocki.Helper;
+
+namespace Blocki.Notifications
 {
     public class ButtonPressed
     {
-        public ButtonPressed(Id buttonId)
+        public ButtonPressed(Definitions.ButtonId buttonId)
         {
             _buttonId = buttonId;
         }
 
-        public enum Id
-        {
-            AddBlock,
-            Connect,
-            Delete,
-            Move,
-            Save,
-            None
-        }
-
-        public Id buttonId
+        public Definitions.ButtonId buttonId
         {
             get { return _buttonId; }
         }
 
-        private readonly Id _buttonId;
+        private readonly Definitions.ButtonId _buttonId;
     }
 }

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Blocki.Helper;
+using Blocki.DrawElements;
 
 namespace Blocki.ImageGenerator
 {
@@ -14,9 +13,9 @@ namespace Blocki.ImageGenerator
         public void Add(DrawElements.Svg svg, int xPos, int yPos)
         {
             svg.GetViewBox(out int xStart, out int yStart, out int width, out int height);
-            DrawElements.Container container = new DrawElements.Container();
+            Container container = new Container();
             container.AddGrid(_gridWidth, xStart, yStart, width, height);
-            container.ContainerType = DrawElements.Container.Type.Grid;
+            container.ContainerType = Definitions.ContainerType.Grid;
             svg.AddContainerAtBack(container);
         }
 
@@ -27,8 +26,8 @@ namespace Blocki.ImageGenerator
             {
                 for (int i = 0; i < numberOfContainers; i++)
                 {
-                    DrawElements.Container container = svg.GetContainer(i);
-                    if (container.ContainerType == DrawElements.Container.Type.Grid)
+                    Container container = svg.GetContainer(i);
+                    if (container.ContainerType == Definitions.ContainerType.Grid)
                     {
                         svg.RemoveContainer(container);
                         break;

@@ -4,6 +4,9 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Blocki.Notifications;
 using Blocki.ImageGenerator;
+using Blocki.Helper;
+using Blocki.ControlView;
+using Blocki.DrawView;
 
 namespace Blocki
 {
@@ -18,15 +21,15 @@ namespace Blocki
         {
             AvaloniaXamlLoader.Load(this);
 
-            ControlView.ControlBar controlView = new ControlView.ControlBar();
+            ControlBar controlView = new ControlBar();
             _ControlPanel = this.Find<UserControl>("controlPanel");
             _ControlPanel.Content = controlView;
 
-            ControlView.StatusBar statusView = new ControlView.StatusBar();
+            StatusBar statusView = new StatusBar();
             _StatusPanel = this.Find<UserControl>("statusPanel");
             _StatusPanel.Content = statusView;
 
-            DrawView.ImageDisplay drawView = new DrawView.ImageDisplay();
+            ImageDisplay drawView = new ImageDisplay();
             _DrawPanel = this.Find<UserControl>("drawPanel");
             _DrawPanel.Content = drawView;
 
@@ -41,7 +44,7 @@ namespace Blocki
                 int height = Convert.ToInt32(value.Height - _StatusPanel.Height);
                 int width = Convert.ToInt32(value.Width - _ControlPanel.Width);
                 Notification notification = new Notification(new DisplayedSizeChanged(width, height));
-                NotificationCenter.Instance.PostNotification(Notification.Id.DisplayedSizeChanged, notification);
+                NotificationCenter.Instance.PostNotification(Definitions.NotificationId.DisplayedSizeChanged, notification);
             }
         }
 
