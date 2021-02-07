@@ -20,7 +20,7 @@ namespace Blocki.Helper
                     {
                         foreach (Connector connector in connectorsOfBlock)
                         {
-                            if (connector.IdSrc == container.GetId)
+                            if (connector.EndpointSrc.Id == container.GetId)
                             {
                                 connectors.Add(connector);
                             }
@@ -39,40 +39,40 @@ namespace Blocki.Helper
             container.GetConnections(out List<Connector> connectors);
             foreach (Connector srcConnector in connectors)
             {
-                if (srcConnector.IdSrc == container.GetId)
+                if (srcConnector.EndpointSrc.Id == container.GetId)
                 {
-                    if (srcConnector.OrientationSrc == Definitions.Orientation.Top)
+                    if (srcConnector.EndpointSrc.Orientation == Definitions.Orientation.Top)
                     {
                         topNr++;
                     }
-                    if (srcConnector.OrientationSrc == Definitions.Orientation.Bottom)
+                    if (srcConnector.EndpointSrc.Orientation == Definitions.Orientation.Bottom)
                     {
                         bottomNr++;
                     }
-                    if (srcConnector.OrientationSrc == Definitions.Orientation.Left)
+                    if (srcConnector.EndpointSrc.Orientation == Definitions.Orientation.Left)
                     {
                         leftNr++;
                     }
-                    if (srcConnector.OrientationSrc == Definitions.Orientation.Right)
+                    if (srcConnector.EndpointSrc.Orientation == Definitions.Orientation.Right)
                     {
                         rightNr++;
                     }
                 }
                 else
                 {
-                    if (srcConnector.OrientationDst == Definitions.Orientation.Top)
+                    if (srcConnector.EndpointDst.Orientation == Definitions.Orientation.Top)
                     {
                         topNr++;
                     }
-                    if (srcConnector.OrientationDst == Definitions.Orientation.Bottom)
+                    if (srcConnector.EndpointDst.Orientation == Definitions.Orientation.Bottom)
                     {
                         bottomNr++;
                     }
-                    if (srcConnector.OrientationDst == Definitions.Orientation.Left)
+                    if (srcConnector.EndpointDst.Orientation == Definitions.Orientation.Left)
                     {
                         leftNr++;
                     }
-                    if (srcConnector.OrientationDst == Definitions.Orientation.Right)
+                    if (srcConnector.EndpointDst.Orientation == Definitions.Orientation.Right)
                     {
                         rightNr++;
                     }
@@ -80,50 +80,66 @@ namespace Blocki.Helper
             }
         }
 
-        public static void GetSortedListOfContainerConnections(DrawElements.Svg svg, Container container, Definitions.Orientation orientation, out SortedList<int, Connector> connectorList)
+        public static void GetListOfContainerConnections(Container container, Definitions.Orientation orientation, out List<Connector> connectorList)
         {
-            connectorList = new SortedList<int, Connector>();
-            List<Connector> connectorsOfBlock;
-            container.GetConnections(out connectorsOfBlock);
-            Guid connectedBlockId;
+            connectorList = new List<Connector>();
+            container.GetConnections(out List<Connector> connectorsOfBlock);
 
             foreach (Connector connectorOfBlock in connectorsOfBlock)
             {
                 Definitions.Orientation orientationOfBlockConnector;
-                if (connectorOfBlock.IdDst == container.GetId)
+                if (connectorOfBlock.EndpointDst.Id == container.GetId)
                 {
-                    orientationOfBlockConnector = connectorOfBlock.OrientationDst;
-                    connectedBlockId = connectorOfBlock.IdSrc;
+                    orientationOfBlockConnector = connectorOfBlock.EndpointDst.Orientation;
                 }
                 else
                 {
-                    orientationOfBlockConnector = connectorOfBlock.OrientationSrc;
-                    connectedBlockId = connectorOfBlock.IdDst;
+                    orientationOfBlockConnector = connectorOfBlock.EndpointSrc.Orientation;
                 }
 
                 if (orientationOfBlockConnector == orientation)
                 {
-                    int index;
-                    Container connectedContainer = svg.GetContainer(connectedBlockId);
-                    connectedContainer.GetLocation(out int xStartTmp, out int xEndTmp, out int yStartTmp, out int yEndTmp);
-                    if ((orientation == Definitions.Orientation.Top) || (orientation == Definitions.Orientation.Bottom))
-                    {
-                        index = xStartTmp + (xEndTmp - xStartTmp);
-                        while (connectorList.ContainsKey(index))
-                        {
-                            index++;
-                        }
-                    }
-                    else
-                    {
-                        index = yStartTmp + (yEndTmp - yStartTmp);
-                        while (connectorList.ContainsKey(index))
-                        {
-                            index++;
-                        }
-                    }
-                    connectorList.Add(index, connectorOfBlock);
+                    connectorList.Add(connectorOfBlock);
                 }
+            }
+        }
+
+        public static void SortConnectorList(DrawElements.Svg svg, Container container, List<Connector> unsortedConnectorList, out SortedList<int, Connector> sortedConnectorList)
+        {
+            sortedConnectorList = new SortedList<int, Connector>();
+
+            foreach (Connector connector in unsortedConnectorList)
+            {
+                Definitions.Orientation orientation;
+                Guid connectedBlockId;
+
+                if (connector.EndpointDst.Id == container.GetId)
+                {
+                    orientation = connector.EndpointDst.Orientation;
+                    connectedBlockId = connector.EndpointSrc.Id;
+                }
+                else
+                {
+                    orientation = connector.EndpointSrc.Orientation;
+                    connectedBlockId = connector.EndpointDst.Id;
+                }
+
+                int index;
+                Container connectedContainer = svg.GetContainer(connectedBlockId);
+                connectedContainer.GetLocation(out int xStart, out int xEnd, out int yStart, out int yEnd);
+                if ((orientation == Definitions.Orientation.Top) || (orientation == Definitions.Orientation.Bottom))
+                {
+                    index = xStart + (xEnd - xStart);
+                }
+                else
+                {
+                    index = yStart + (yEnd - yStart);
+                }
+                while (sortedConnectorList.ContainsKey(index))
+                {
+                    index++;
+                }
+                sortedConnectorList.Add(index, connector);
             }
         }
     }

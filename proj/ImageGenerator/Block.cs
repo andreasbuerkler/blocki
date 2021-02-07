@@ -73,13 +73,13 @@ namespace Blocki.ImageGenerator
                     for (int i = connectorsOfBlock.Count - 1; i >= 0; i--)
                     {
                         Container dstContainer = null;
-                        if (connectorsOfBlock[i].IdSrc == _selectedContainer.GetId)
+                        if (connectorsOfBlock[i].EndpointSrc.Id == _selectedContainer.GetId)
                         {
-                            dstContainer = svg.GetContainer(connectorsOfBlock[i].IdDst);
+                            dstContainer = svg.GetContainer(connectorsOfBlock[i].EndpointDst.Id);
                         }
-                        else if (connectorsOfBlock[i].IdDst == _selectedContainer.GetId)
+                        else if (connectorsOfBlock[i].EndpointDst.Id == _selectedContainer.GetId)
                         {
-                            dstContainer = svg.GetContainer(connectorsOfBlock[i].IdSrc);
+                            dstContainer = svg.GetContainer(connectorsOfBlock[i].EndpointSrc.Id);
                         }
                         if (dstContainer != null)
                         {
